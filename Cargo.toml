@@ -1,0 +1,9 @@
+[package]
+name = "implementation"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+k256 = { version = "0.13", features = ["ecdsa", "schnorr", "arithmetic"] }
+sha2 = "0.10"
+rand_core = "0.6"
