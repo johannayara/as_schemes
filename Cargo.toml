@@ -1,9 +1,18 @@
 [package]
-name = "implementation"
+name = "as_for_fde"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-k256 = { version = "0.13", features = ["ecdsa", "schnorr", "arithmetic"] }
+k256 = { version = "0.13", features = ["ecdsa", "schnorr", "arithmetic", "sha256"] }
 sha2 = "0.10"
 rand_core = "0.6"
+aes-gcm = "0.10"
+aes = "0.8"
+hex = "0.4"
+[[bin]]
+name = "main_fde"
+path = "src/main_fde.rs"
+
+
+

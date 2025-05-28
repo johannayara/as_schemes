@@ -127,7 +127,7 @@ pub trait AS_scheme {
         delta_prime: &Delta_prime
     ) -> bool;
     fn adapt_signature(&self, delta_prime: &Delta_prime, t: &Scalar) -> Delta;
-    fn extract_witness(&self, s: &Delta, delta_prime: &Delta_prime) -> Scalar;
+    fn extract_witness(&self, delta: &Delta, delta_prime: &Delta_prime) -> Scalar;
 }
 pub trait Sign_scheme{
     fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Delta;
