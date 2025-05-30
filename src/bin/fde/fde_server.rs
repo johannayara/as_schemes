@@ -7,7 +7,8 @@ use aes_gcm::{
 use hex;
 
 use rand_core::OsRng;
-use as_for_fde::{crypto_impl::{AS_scheme, Delta_prime,Delta, Schnorr}, Sign_scheme};
+
+use as_for_fde::{AS_scheme, Delta_prime,Delta, Schnorr, Sign_scheme};
 
 pub struct Server {
     sk: Scalar,

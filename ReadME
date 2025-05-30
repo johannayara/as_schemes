@@ -1,0 +1,81 @@
+# Project title
+## Project Description
+
+
+<what the project uses> 
+
+## Project structure
+```
+.
+├── README.md
+
+```
+
+## Setup
+
+### Clone Repository
+
+#### Via HTTPS:
+```bash
+git clone <https>
+```
+
+#### Via SSH:
+```bash
+git clone <ssh>
+```
+
+---
+
+### Set Up the Environment
+
+---
+
+## Provided features 
+
+### 1. **Feature one **
+Description of feature one 
+
+#### Key Features
+
+#### Example Usage
+```bash
+python script/test.py
+```
+
+Descritpion of script argument and usage 
+
+---
+
+### 2. **Feature two**
+Description of feature two
+
+#### Key Features
+
+
+#### Arguments
+| Argument              | Type     | Default      | Description                                                                 |
+|-----------------------|----------|--------------|-----------------------------------------------------------------------------|
+| `--b` | `str`   | `multiclass` | description              |
+| `--a`  | `flag`   | `False`      | descritption                       |
+
+#### Example Usage
+** (Default)**:
+```bash
+python script/default.py --a 
+```
+
+---
+
+### Output
+
+
+### Notes
+---
+
+### **Quick Workflow**
+#### Feature one:
+
+#### Feature two:
+
+### **Notes on Renaming**

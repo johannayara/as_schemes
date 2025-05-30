@@ -3,8 +3,6 @@
 
 mod fde_client;
 mod fde_server;
-mod crypto_impl; // Your big trait & impl code
-
 use fde_server::Server;
 use fde_client::Client;
 

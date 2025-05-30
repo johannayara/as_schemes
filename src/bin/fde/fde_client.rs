@@ -5,7 +5,7 @@ use aes_gcm::{
 };
 use hex;
 use rand_core::OsRng;
-use as_for_fde::{crypto_impl::{AS_scheme, Delta, Delta_prime, Schnorr}, Sign_scheme};
+use as_for_fde::{AS_scheme, Delta, Delta_prime, Schnorr, Sign_scheme};
 
 pub struct Client {
     sk_c: Scalar,
@@ -25,6 +25,7 @@ impl Client {
         let delta_prime = schnorr.pre_sign(&self.sk_c, &hex::encode(ct), server_pk, &r_prime);
         delta_prime
     }
+    
     pub fn verify_sign(&self, server_pk: &ProjectivePoint, ct: &[u8], delta_s: &Delta, delta_c: &Delta) -> bool{
         let schnorr = Schnorr;
         let is_s_correct = schnorr.verify_sign(delta_s,server_pk, &hex::encode(ct));

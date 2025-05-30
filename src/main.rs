@@ -1,9 +1,7 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-mod crypto_impl;
-use crypto_impl::{AS_scheme, Delta, Delta_prime, Schnorr, Sign_scheme, ECDSA};
-
+use as_for_fde::{Schnorr, ECDSA, Delta, Delta_prime, AS_scheme, Sign_scheme};
 use rand_core::OsRng;
 use k256::{
     elliptic_curve::{ff::Field}, ProjectivePoint, Scalar
