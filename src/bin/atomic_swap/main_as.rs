@@ -4,13 +4,32 @@
 mod alice;
 mod bob;
 use alice::Alice;
-use as_for_fde::Delta_prime;
+use as_for_fde::{Schnorr, ECDSA, Scheme};
 use bob::Bob;
+use std::env;
+
+
 
 fn main() {
+    // === Step 0: set to chosen scheme ===
+    let args: Vec<String> = env::args().collect();
+    let input = args.get(1).map(String::as_str).unwrap_or("schnorr");
+
+    
+    let scheme: Scheme = match input {
+        "schnorr" => Scheme::Schnorr(Schnorr {}),
+        "ecdsa" => Scheme::ECDSA(ECDSA {}),
+        _ => {
+            eprintln!("Please input a valid scheme: [\"schnorr\", \"ecdsa\"]");
+            std::process::exit(1);
+        }
+    };
+    println!("The protocol will run using : {}", input);
+
+
     // === Step 1: Setup ===
-    let alice = Alice::new();
-    let bob = Bob::new();
+    let alice = Alice::new(scheme.clone());
+    let bob = Bob::new(scheme);
 
     // === Step 2: Alice creates tx_2, and generates a pre-signature on it ===
     let tx2 = "Transaction id 2 :)";
@@ -22,7 +41,7 @@ fn main() {
     assert!(bob.verify_presig(&delta_prime_a2, &alice.pk, &tx2, &T));
     //Bob creates tx1 and a pre-signature on it 
     let tx1 = "Transaction id 1 :)";
-    let delta_prime_b1: Delta_prime = bob.generate_presig(&tx1, &T);
+    let delta_prime_b1 = bob.generate_presig(&tx1, &T);
     println!("Bob generated tx1 and sent his pre-signature on it to Alice.");
 
     // === Step 4: Alice verifies s'_b1 and generates s_a1, s_b1 ===

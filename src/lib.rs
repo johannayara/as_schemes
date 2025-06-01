@@ -4,9 +4,12 @@
 pub mod ecdsa;
 pub mod schnorr;
 pub mod utils;
+pub mod scheme;
+
 
 pub use schnorr::Schnorr;
 pub use ecdsa::ECDSA;
+pub use scheme:: Scheme;
 
 use k256::{
     ProjectivePoint, Scalar,

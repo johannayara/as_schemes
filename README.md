@@ -69,11 +69,6 @@ This example illustrates a fair data exchange mechanism using adaptor signatures
 
 #### Key Features
 
-#### Arguments
-| Argument              | Type     | Default      | Description                                                                 |
-|-----------------------|----------|--------------|-----------------------------------------------------------------------------|
-| `--scheme` | `str`   | `multiclass` | this flag can be set to ecdsa or schnorr to choose which primitives are used              |
-
 #### Example Usage
 ** (Default) Schnorr**:
 ```bash
@@ -81,7 +76,7 @@ cargo run --bin fde
 ```
 ** ECDSA **:
 ```bash
-cargo run --bin fde --scheme ecdsa 
+cargo run --bin fde ecdsa 
 ```
 ---
 
@@ -90,10 +85,6 @@ The implementation for the atomic swap protocol can be found [here](src/bin/atom
 
 #### Key Features
 
-#### Arguments
-| Argument              | Type     | Default      | Description                                                                 |
-|-----------------------|----------|--------------|-----------------------------------------------------------------------------|
-| `--scheme` | `str`   | `multiclass` | this flag can be set to ecdsa or schnorr to choose which primitives are used              |
 
 #### Example Usage
 ** (Default) Schnorr**:
@@ -102,7 +93,7 @@ cargo run --bin atomic_swap
 ```
 ** ECDSA **:
 ```bash
-cargo run --bin atomic_swap --scheme ecdsa 
+cargo run --bin atomic_swap ecdsa 
 ```
 
 ---

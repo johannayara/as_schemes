@@ -8,23 +8,23 @@ use hex;
 
 use rand_core::OsRng;
 
-use as_for_fde::{AS_scheme, Delta_prime,Delta, Schnorr, Sign_scheme};
+use as_for_fde::{ AS_scheme, Delta, Delta_prime, Scheme, Sign_scheme};
 
 pub struct Server {
     sk: Scalar,
     pub pk: ProjectivePoint,
     sk_s: Scalar,
     pub pk_s: ProjectivePoint,
-    
+    scheme: Scheme
 }
 
 impl Server {
-    pub fn new() -> Self {
+    pub fn new(scheme:Scheme) -> Self {
         let sk = Scalar::random(&mut OsRng);
         let pk = ProjectivePoint::GENERATOR * sk;
         let sk_s = Scalar::random(&mut OsRng);
         let pk_s = ProjectivePoint::GENERATOR * sk_s;
-        Self { sk, pk, sk_s, pk_s}
+        Self { sk, pk, sk_s, pk_s, scheme}
     }
 
     pub fn encrypt_data(&self, plaintext: &str) -> (Vec<u8>, [u8; 12]) {
@@ -43,17 +43,15 @@ impl Server {
 
 
     pub fn verify_presig(&self, delta_prime: &Delta_prime, pk_c: &ProjectivePoint, ct: &[u8]) -> bool {
-        let schnorr = Schnorr;
-        schnorr.verify_pre_sign(pk_c, &hex::encode(ct), &self.pk, delta_prime)
+        self.scheme.verify_pre_sign(pk_c, &hex::encode(ct), &self.pk, delta_prime)
     }
 
     pub fn generate_sig_and_adapt(&self, ct: &[u8], delta_prime: &Delta_prime) -> (Delta, Delta) {
-        let schnorr = Schnorr;
 
         // Server Schnorr signature
         let r_s = Scalar::random(&mut OsRng);
-        let delta_s = schnorr.sign(&self.sk_s, &hex::encode(ct), &r_s);
-        let delta_c = schnorr.adapt_signature(delta_prime, &self.sk);
+        let delta_s = self.scheme.sign(&self.sk_s, &hex::encode(ct), &r_s);
+        let delta_c = self.scheme.adapt_signature(delta_prime, &self.sk);
 
         (delta_s, delta_c)
     }

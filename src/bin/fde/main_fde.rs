@@ -2,11 +2,29 @@ mod fde_client;
 mod fde_server;
 use fde_server::Server;
 use fde_client::Client;
+use as_for_fde::{Schnorr, ECDSA, Scheme};
+use std::env;
+
 
 fn main() {
+    // === Step 0: set to chosen scheme ===
+    let args: Vec<String> = env::args().collect();
+    let input = args.get(1).map(String::as_str).unwrap_or("schnorr");
+
+    
+    let scheme: Scheme = match input {
+        "schnorr" => Scheme::Schnorr(Schnorr {}),
+        "ecdsa" => Scheme::ECDSA(ECDSA {}),
+        _ => {
+            eprintln!("Please input a valid scheme: [\"schnorr\", \"ecdsa\"]");
+            std::process::exit(1);
+        }
+    };
+    println!("The protocol will run using : {}", input);
+
     // === Step 1: Setup ===
-    let server = Server::new();
-    let client = Client::new();
+    let server = Server::new(scheme.clone());
+    let client = Client::new(scheme);
 
     // === Step 2: Server encrypts data ===
     let data = "Very secret data :)";

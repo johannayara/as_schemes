@@ -5,6 +5,7 @@ use sha2::{Digest, Sha256};
 
 use crate::{Delta, Delta_prime, AS_scheme, Sign_scheme};
 
+#[derive(Clone)]
 pub struct Schnorr;
 
 impl Sign_scheme for Schnorr{

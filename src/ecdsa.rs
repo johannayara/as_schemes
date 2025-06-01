@@ -8,7 +8,7 @@ use rand_core::OsRng;
 use crate::{Delta, Delta_prime, Pi, ZKP, AS_scheme, Sign_scheme};
 use crate::utils::{get_x, invert_scalar};
 
-
+#[derive(Clone)]
 pub struct ECDSA;
 impl ZKP for ECDSA{
     fn compute_challenge(&self, P: &ProjectivePoint, Z: &ProjectivePoint, T:&ProjectivePoint, J: &ProjectivePoint, J_prime: &ProjectivePoint) -> Scalar {
