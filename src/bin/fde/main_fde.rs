@@ -1,6 +1,3 @@
-#![allow(non_snake_case)]
-#![allow(non_camel_case_types)]
-
 mod fde_client;
 mod fde_server;
 use fde_server::Server;
@@ -33,5 +30,5 @@ fn main() {
     let decrypted = client.decrypt_data(&ct, &sk_recovered, &nonce);
 
     println!("Client extracted sk and decrypted the data:");
-    println!("{}", String::from_utf8_lossy(&decrypted));
+    println!("Decrypted message: {}", decrypted);
 }

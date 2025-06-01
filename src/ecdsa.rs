@@ -45,6 +45,9 @@ impl ZKP for ECDSA{
 }
 impl Sign_scheme for ECDSA{
     fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Delta {
+        if m.is_empty() {
+            panic!("Message cannot be empty.");
+        }
         let R = ProjectivePoint::GENERATOR * k;
         let P = ProjectivePoint::GENERATOR * p;
         let r_x = get_x(&R);
@@ -67,6 +70,9 @@ impl Sign_scheme for ECDSA{
 
 impl AS_scheme for ECDSA{
     fn hash_challenge(&self, _R: &ProjectivePoint, _P: &ProjectivePoint, message: &str) -> Scalar {
+        if message.is_empty() {
+            panic!("Message cannot be empty.");
+        }
         let mut hasher = Sha256::new(); //init hasher 
         hasher.update(message.as_bytes()); // add message 
         let hash: [u8; 32] = hasher.finalize().into();
@@ -81,6 +87,10 @@ impl AS_scheme for ECDSA{
         ) -> Delta_prime {
         // s' = k⁻1(H(m)+r'_xtP)
         // R' = k·T
+        if m.is_empty() {
+            panic!("Message cannot be empty.");
+        }
+
         let R_prime: ProjectivePoint = T * k;
         let R_prime_x = get_x(&R_prime);
 

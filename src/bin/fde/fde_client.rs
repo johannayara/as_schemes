@@ -39,11 +39,12 @@ impl Client {
         t
     }
 
-    pub fn decrypt_data(&self, ct: &[u8], sk: &Scalar, nonce_bytes: &[u8]) -> Vec<u8> {
+    pub fn decrypt_data(&self, ct: &[u8], sk: &Scalar, nonce_bytes: &[u8]) -> String {
         let key_bytes = sk.to_bytes();
         let key = Key::<Aes256Gcm>::from_slice(&key_bytes);
         let cipher = Aes256Gcm::new(key);
         let nonce = Nonce::from_slice(nonce_bytes);
-        cipher.decrypt(nonce, ct).expect("decryption failed")
+        let plaintext: Vec<u8> = cipher.decrypt(nonce, ct).expect("decryption failed");
+        String::from_utf8(plaintext).expect("Invalid UTF8 character in plaintext")
     }
 }

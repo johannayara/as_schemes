@@ -1,4 +1,4 @@
-# Project title
+# Adaptor signatures appplied to fair data exchange and atomic swaps
 ## Overview
 
 This project provides implementations of adaptor signature schemes and demonstrates their application through two example protocols: **Atomic Swap** and **Fair Data Exchange**. Both **Schnorr** and **ECDSA** adaptor signature schemes are implemented.

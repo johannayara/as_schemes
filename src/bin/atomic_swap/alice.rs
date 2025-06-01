@@ -41,10 +41,4 @@ impl Alice {
         (delta_a, delta_b)
     }
 
-    pub fn extract_secret(&self, delta: &Delta, delta_prime: &Delta_prime) -> Scalar {
-        let schnorr = Schnorr;
-        let t = schnorr.extract_witness(delta, delta_prime);
-        t
-    }
-
 }

@@ -9,6 +9,9 @@ pub struct Schnorr;
 
 impl Sign_scheme for Schnorr{
     fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Delta {
+        if m.is_empty() {
+            panic!("Message cannot be empty.");
+        }
         let R = ProjectivePoint::GENERATOR * k;
         let P = ProjectivePoint::GENERATOR * p;
         let e = self.hash_challenge(&R, &P, m);
@@ -29,6 +32,9 @@ impl Sign_scheme for Schnorr{
 impl AS_scheme for Schnorr {
     // Hash function H(R' || P || m)
     fn hash_challenge(&self, R: &ProjectivePoint, P: &ProjectivePoint, message: &str) -> Scalar {
+        if message.is_empty() {
+            panic!("Message cannot be empty.");
+        }
         let mut hasher = Sha256::new(); //init hasher 
         hasher.update(R.to_affine().to_encoded_point(false).as_bytes()); // add R
         hasher.update(P.to_affine().to_encoded_point(false).as_bytes()); // add P 
@@ -48,6 +54,9 @@ impl AS_scheme for Schnorr {
         T: &ProjectivePoint,
         r_prime: &Scalar
     ) -> Delta_prime {
+        if m.is_empty() {
+            panic!("Message cannot be empty.");
+        }
         let R_prime = ProjectivePoint::GENERATOR * r_prime + T;
         let P = ProjectivePoint::GENERATOR * p;
         let e = self.hash_challenge(&R_prime, &P, m);
