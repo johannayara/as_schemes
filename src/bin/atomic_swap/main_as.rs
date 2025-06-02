@@ -4,18 +4,16 @@
 mod alice;
 mod bob;
 use alice::Alice;
-use as_for_fde::{Schnorr, ECDSA, Scheme};
+use as_for_fde::{Scheme, Schnorr, ECDSA};
 use bob::Bob;
 use std::env;
 
-
-
+/// Schematic implementation of the steps of a two party atomic swap protocol.
 fn main() {
-    // === Step 0: set to chosen scheme ===
+    // === Step 0: Set to chosen scheme ===
     let args: Vec<String> = env::args().collect();
     let input = args.get(1).map(String::as_str).unwrap_or("schnorr");
 
-    
     let scheme: Scheme = match input {
         "schnorr" => Scheme::Schnorr(Schnorr {}),
         "ecdsa" => Scheme::ECDSA(ECDSA {}),
@@ -25,7 +23,6 @@ fn main() {
         }
     };
     println!("The protocol will run using : {}", input);
-
 
     // === Step 1: Setup ===
     let alice = Alice::new(scheme.clone());
@@ -39,7 +36,7 @@ fn main() {
 
     // === Step 3: Bob verifies Alice's presignature  ===
     assert!(bob.verify_presig(&delta_prime_a2, &alice.pk, &tx2, &T));
-    //Bob creates tx1 and a pre-signature on it 
+    //Bob creates tx1 and a pre-signature on it
     let tx1 = "Transaction id 1 :)";
     let delta_prime_b1 = bob.generate_presig(&tx1, &T);
     println!("Bob generated tx1 and sent his pre-signature on it to Alice.");

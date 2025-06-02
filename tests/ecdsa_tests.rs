@@ -3,12 +3,9 @@
 
 #[cfg(test)]
 mod tests {
-    use as_for_fde::{ECDSA, Delta, Delta_prime, AS_scheme, Sign_scheme};
+    use as_for_fde::{AS_scheme, Delta, Delta_prime, Sign_scheme, ECDSA};
+    use k256::{elliptic_curve::ff::Field, ProjectivePoint, Scalar};
     use rand_core::OsRng;
-    use k256::{
-        elliptic_curve::{ff::Field}, ProjectivePoint, Scalar
-    };
-    
 
     #[test]
     fn sign_works() {
@@ -22,10 +19,10 @@ mod tests {
 
         let k: Scalar = Scalar::random(&mut OsRng); // nonce
 
-        let message: &str = "Testing message for ecdsa"; //our message 
-        // Sign 
+        let message: &str = "Testing message for ecdsa"; //our message
+                                                         // Sign
         let delta: Delta = ecdsa.sign(&p, message, &k);
-        assert!(ecdsa.verify_sign( &delta, &P, message));
+        assert!(ecdsa.verify_sign(&delta, &P, message));
         println!("Signature verified ✅");
     }
     #[test]
@@ -84,7 +81,7 @@ mod tests {
     }
 
     #[test]
-    fn pre_sign_works(){
+    fn pre_sign_works() {
         let ecdsa: ECDSA = ECDSA;
         // Keys
         let p: Scalar = Scalar::random(&mut OsRng); // secret key
@@ -96,7 +93,7 @@ mod tests {
         let k: Scalar = Scalar::random(&mut OsRng); // nonce
 
         let message: &str = "Test message for ecdsa pre-sign"; //our message
-        // Pre-sign  
+                                                               // Pre-sign
         let delta_prime: Delta_prime = ecdsa.pre_sign(&p, message, &T, &k);
         assert!(ecdsa.verify_pre_sign(&P, message, &T, &delta_prime,));
         println!("Pre-signature verified ✅");
@@ -152,9 +149,4 @@ mod tests {
         let k = Scalar::random(&mut OsRng);
         let _ = ecdsa.pre_sign(&p, "", &T, &k);
     }
-
-
-
 }
-
-

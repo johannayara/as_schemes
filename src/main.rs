@@ -1,11 +1,9 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-use as_for_fde::{Schnorr, ECDSA, Delta, Delta_prime, AS_scheme, Sign_scheme};
+use as_for_fde::{AS_scheme, Delta, Delta_prime, Schnorr, Sign_scheme, ECDSA};
+use k256::{elliptic_curve::ff::Field, ProjectivePoint, Scalar};
 use rand_core::OsRng;
-use k256::{
-    elliptic_curve::{ff::Field}, ProjectivePoint, Scalar
-};
 fn main() {
     // Schnorr
     let schnorr: Schnorr = Schnorr;
@@ -20,19 +18,20 @@ fn main() {
     let r_prime: Scalar = Scalar::random(&mut OsRng); // nonce
     let k: Scalar = Scalar::random(&mut OsRng); // nonce
 
-    let message: &str = "Adaptor signature message"; //our message 
-    // Sign 
+    let message: &str = "Adaptor signature message"; //our message
+                                                     // Sign
     let delta: Delta = schnorr.sign(&p, message, &k);
     println!("s = {:?},\nR = {:?} ", delta.s, delta.R);
-    // Verify signature 
-    assert!(schnorr.verify_sign( &delta, &P, message));
+    // Verify signature
+    assert!(schnorr.verify_sign(&delta, &P, message));
     println!("Signature verified ✅");
 
-
-
     // Pre-sign
-    let delta_prime: Delta_prime  = schnorr.pre_sign(&p, message, &T, &r_prime);
-    println!("s_prime = {:?}, R_prime = {:?}", delta_prime.s_prime, delta_prime.R_prime);
+    let delta_prime: Delta_prime = schnorr.pre_sign(&p, message, &T, &r_prime);
+    println!(
+        "s_prime = {:?}, R_prime = {:?}",
+        delta_prime.s_prime, delta_prime.R_prime
+    );
 
     // Verify pre-signature
     assert!(schnorr.verify_pre_sign(&P, message, &T, &delta_prime));
@@ -41,8 +40,8 @@ fn main() {
     // Adapt signature
     let delta: Delta = schnorr.adapt_signature(&delta_prime, &t);
     println!("Full signature scalar: {:?}", delta.s);
-    // Verify signature 
-    assert!(schnorr.verify_sign( &delta, &P, message));
+    // Verify signature
+    assert!(schnorr.verify_sign(&delta, &P, message));
     println!("Signature verified ✅");
     // Extract witness
     let t_extracted: Scalar = schnorr.extract_witness(&delta, &delta_prime);
@@ -50,25 +49,28 @@ fn main() {
     println!("Extracted tweak matches ✅");
     print!("\n");
     println!("Start ECDSA :");
-    
+
     // ECDSA
     let ecdsa: ECDSA = ECDSA;
-    
-    // Sign 
+
+    // Sign
     let delta: Delta = ecdsa.sign(&p, message, &k);
     println!("s = {:?},\nR = {:?} ", delta.s, delta.R);
-    // Verify signature 
-    assert!(ecdsa.verify_sign( &delta, &P, message));
+    // Verify signature
+    assert!(ecdsa.verify_sign(&delta, &P, message));
     println!("Signature verified ✅");
 
     // Pre-sign
-    let delta_prime: Delta_prime  = ecdsa.pre_sign(&p, message, &T, &r_prime);
-    println!("s_prime = {:?},\nR_prime = {:?}", delta_prime.s_prime, delta_prime.R_prime);
+    let delta_prime: Delta_prime = ecdsa.pre_sign(&p, message, &T, &r_prime);
+    println!(
+        "s_prime = {:?},\nR_prime = {:?}",
+        delta_prime.s_prime, delta_prime.R_prime
+    );
 
     // Adapt signature
     let delta: Delta = ecdsa.adapt_signature(&delta_prime, &t);
     println!("Full signature scalar: {:?},\nR = {:?}", delta.s, delta.R);
-    assert!(ecdsa.verify_sign( &delta, &P, message));
+    assert!(ecdsa.verify_sign(&delta, &P, message));
     println!("Signature verified ✅");
 
     // Extract witness
@@ -79,7 +81,4 @@ fn main() {
     // Verify pre-signature
     assert!(ecdsa.verify_pre_sign(&P, message, &T, &delta_prime));
     println!("Pre-signature verified ✅");
-
-
-
 }

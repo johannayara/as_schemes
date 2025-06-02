@@ -1,17 +1,16 @@
 mod fde_client;
 mod fde_server;
-use fde_server::Server;
+use as_for_fde::{Scheme, Schnorr, ECDSA};
 use fde_client::Client;
-use as_for_fde::{Schnorr, ECDSA, Scheme};
+use fde_server::Server;
 use std::env;
 
-
+/// Schematic implementation of the steps of a two party fair data exchange protocol.
 fn main() {
-    // === Step 0: set to chosen scheme ===
+    // === Step 0: Set to chosen scheme ===
     let args: Vec<String> = env::args().collect();
     let input = args.get(1).map(String::as_str).unwrap_or("schnorr");
 
-    
     let scheme: Scheme = match input {
         "schnorr" => Scheme::Schnorr(Schnorr {}),
         "ecdsa" => Scheme::ECDSA(ECDSA {}),
@@ -37,7 +36,7 @@ fn main() {
     println!("Client generated (s'_c, R'_c) and sent to server.");
 
     // === Step 4: Server verifies s'_c and generates s_s, s_c ===
-    assert!(server.verify_presig(&delta_prime_c, &client.pk_c, &ct));
+    assert!(server.verify_presig(&delta_prime_c, &client.pk, &ct));
     let (delta_s, delta_c) = server.generate_sig_and_adapt(&ct, &delta_prime_c);
     println!("Server verified pre-sig and broadcasted s_s, s_c.");
 

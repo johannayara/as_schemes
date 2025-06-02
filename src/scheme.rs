@@ -1,4 +1,4 @@
-use crate::{Delta, Delta_prime, AS_scheme, Sign_scheme, ECDSA, Schnorr};
+use crate::{AS_scheme, Delta, Delta_prime, Schnorr, Sign_scheme, ECDSA};
 use k256::{ProjectivePoint, Scalar};
 
 #[derive(Clone)]
@@ -6,8 +6,6 @@ pub enum Scheme {
     Schnorr(Schnorr),
     ECDSA(ECDSA),
 }
-
-
 
 impl Sign_scheme for Scheme {
     fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Delta {
@@ -33,7 +31,13 @@ impl AS_scheme for Scheme {
         }
     }
 
-    fn verify_pre_sign(&self, P: &ProjectivePoint, m: &str, T: &ProjectivePoint, delta_prime: &Delta_prime) -> bool {
+    fn verify_pre_sign(
+        &self,
+        P: &ProjectivePoint,
+        m: &str,
+        T: &ProjectivePoint,
+        delta_prime: &Delta_prime,
+    ) -> bool {
         match self {
             Scheme::Schnorr(s) => s.verify_pre_sign(P, m, T, delta_prime),
             Scheme::ECDSA(e) => e.verify_pre_sign(P, m, T, delta_prime),

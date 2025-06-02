@@ -1,19 +1,45 @@
 use k256::{
-    elliptic_curve::{ff::Field, ops::Reduce, sec1::ToEncodedPoint}, ProjectivePoint, Scalar, U256
+    elliptic_curve::{ff::Field, ops::Reduce, sec1::ToEncodedPoint},
+    ProjectivePoint, Scalar, U256,
 };
 use sha2::{Digest, Sha256};
 
 use rand_core::OsRng;
 
-use crate::{Delta, Delta_prime, Pi, ZKP, AS_scheme, Sign_scheme};
 use crate::utils::{get_x, invert_scalar};
+use crate::{AS_scheme, Delta, Delta_prime, Pi, Sign_scheme, ZKP};
 
+/// `ECDSA` implements the Elliptic Curve Digital Signature Algorithm and its adaptor variant,
+/// including its zero-knowledge proof.
 #[derive(Clone)]
 pub struct ECDSA;
-impl ZKP for ECDSA{
-    fn compute_challenge(&self, P: &ProjectivePoint, Z: &ProjectivePoint, T:&ProjectivePoint, J: &ProjectivePoint, J_prime: &ProjectivePoint) -> Scalar {
-        let mut hasher = Sha256::new(); //init hasher 
-        hasher.update(ProjectivePoint::GENERATOR.to_affine().to_encoded_point(false).as_bytes()); // add G
+impl ZKP for ECDSA {
+    /// Computes a Fiat–Shamir challenge `e` for a zero-knowledge proof,
+    /// using public data and hashing it to a scalar.
+    ///
+    /// # Arguments
+    /// * `P` - Public key corresponding to secret `p`
+    /// * `Z` - Tweaked public key (T * p)
+    /// * `T` - Tweak point
+    /// * `J`, `J_prime` - Commitment points used in the proof
+    ///
+    /// # Returns
+    /// * `Scalar` - The derived challenge value
+    fn compute_challenge(
+        &self,
+        P: &ProjectivePoint,
+        Z: &ProjectivePoint,
+        T: &ProjectivePoint,
+        J: &ProjectivePoint,
+        J_prime: &ProjectivePoint,
+    ) -> Scalar {
+        let mut hasher = Sha256::new(); //init hasher
+        hasher.update(
+            ProjectivePoint::GENERATOR
+                .to_affine()
+                .to_encoded_point(false)
+                .as_bytes(),
+        ); // add G
         hasher.update(T.to_affine().to_encoded_point(false).as_bytes()); // add T
         hasher.update(P.to_affine().to_encoded_point(false).as_bytes()); // add P
         hasher.update(Z.to_affine().to_encoded_point(false).as_bytes()); // add Z
@@ -22,28 +48,65 @@ impl ZKP for ECDSA{
         let hash: [u8; 32] = hasher.finalize().into();
         <Scalar as Reduce<U256>>::reduce_bytes(&hash.into())
     }
-    fn gen_proof(&self, p: &Scalar, Z: &ProjectivePoint, P: &ProjectivePoint, T: &ProjectivePoint) -> Pi{
-        let j = Scalar::random(&mut OsRng); 
+
+    /// Generates a zero-knowledge proof `Pi` that the prover has set `Z ` such that $\log_T(Z) = \log_G(P)$.
+    ///
+    /// # Arguments
+    /// * `p` - Secret scalar
+    /// * `Z` - Public commitment (T * p)
+    /// * `P` - Public key (G * p)
+    /// * `T` - Tweak point
+    ///
+    /// # Returns
+    /// * `Pi` - The generated zero-knowledge proof
+    fn gen_proof(
+        &self,
+        p: &Scalar,
+        Z: &ProjectivePoint,
+        P: &ProjectivePoint,
+        T: &ProjectivePoint,
+    ) -> Pi {
+        let j = Scalar::random(&mut OsRng);
         let J = ProjectivePoint::GENERATOR * j;
         let J_prime = *T * j;
         let e = self.compute_challenge(P, Z, T, &J, &J_prime);
-        let i = j + e*p;
-
-        let  pi = Pi{
-            e: e,
-            i: i,
-        };
-        pi
+        let i = j + e * p;
+        Pi { e: e, i: i }
     }
 
-    fn verify_proof(&self, P: &ProjectivePoint, Z: &ProjectivePoint, T: &ProjectivePoint, pi: &Pi) -> bool{
+    /// Verifies a zero-knowledge proof that a prover has set `Z ` such that $\log_T(Z) = \log_G(P)$.
+    ///
+    /// # Arguments
+    /// * `P` - Public key
+    /// * `Z` - Tweaked public key
+    /// * `T` - Tweak point
+    /// * `pi` - Proof object
+    ///
+    /// # Returns
+    /// * `bool` - True if proof is valid, false otherwise
+    fn verify_proof(
+        &self,
+        P: &ProjectivePoint,
+        Z: &ProjectivePoint,
+        T: &ProjectivePoint,
+        pi: &Pi,
+    ) -> bool {
         let J = ProjectivePoint::GENERATOR * pi.i - (*P * pi.e);
         let J_prime = *T * pi.i - (*Z * pi.e);
         let e_bis = self.compute_challenge(P, Z, T, &J, &J_prime);
         e_bis == pi.e
     }
 }
-impl Sign_scheme for ECDSA{
+impl Sign_scheme for ECDSA {
+    /// Generates a standard ECDSA-style signature.
+    ///
+    /// # Arguments
+    /// * `p` - Secret key scalar
+    /// * `m` - Message to be signed
+    /// * `k` - Random nonce scalar
+    ///
+    /// # Returns
+    /// * `Delta` - Signature containing `(s, R)`
     fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Delta {
         if m.is_empty() {
             panic!("Message cannot be empty.");
@@ -54,13 +117,21 @@ impl Sign_scheme for ECDSA{
         let e = self.hash_challenge(&R, &P, m);
         let k_inv = invert_scalar(k);
         let s = k_inv * (e + *p * r_x);
-        let delta = Delta { s: s, R: R };
-        delta
+        Delta { s: s, R: R }
     }
 
+    /// Verifies a standard ECDSA signature.
+    ///
+    /// # Arguments
+    /// * `delta` - Signature to verify
+    /// * `P` - Signer's public key
+    /// * `m` - Message that was signed
+    ///
+    /// # Returns
+    /// * `bool` - True if valid, false otherwise
     fn verify_sign(&self, delta: &Delta, P: &ProjectivePoint, m: &str) -> bool {
         let r_x = get_x(&delta.R);
-        let e: Scalar = self.hash_challenge(&delta.R ,P, m);
+        let e: Scalar = self.hash_challenge(&delta.R, P, m);
         let s_inv = invert_scalar(&delta.s);
         let rhs_point: ProjectivePoint = (ProjectivePoint::GENERATOR * e + *P * r_x) * s_inv;
         let rhs = get_x(&rhs_point);
@@ -68,23 +139,35 @@ impl Sign_scheme for ECDSA{
     }
 }
 
-impl AS_scheme for ECDSA{
+impl AS_scheme for ECDSA {
+    /// Hashes a message into a challenge scalar.
+    ///
+    /// # Arguments
+    /// * `message` - The message to hash
+    ///
+    /// # Returns
+    /// * `Scalar` - Hash challenge scalar
     fn hash_challenge(&self, _R: &ProjectivePoint, _P: &ProjectivePoint, message: &str) -> Scalar {
         if message.is_empty() {
             panic!("Message cannot be empty.");
         }
-        let mut hasher = Sha256::new(); //init hasher 
-        hasher.update(message.as_bytes()); // add message 
+        let mut hasher = Sha256::new(); //init hasher
+        hasher.update(message.as_bytes()); // add message
         let hash: [u8; 32] = hasher.finalize().into();
         <Scalar as Reduce<U256>>::reduce_bytes(&hash.into())
     }
-    fn pre_sign(
-            &self,
-            p: &Scalar,
-            m: &str,
-            T: &ProjectivePoint,
-            k: &Scalar,
-        ) -> Delta_prime {
+
+    /// Produces an adaptor pre-signature `Delta'` with a ZK proof of correctness.
+    ///
+    /// # Arguments
+    /// * `p` - Secret key
+    /// * `m` - Message
+    /// * `T` - Tweak point
+    /// * `k` - Random nonce
+    ///
+    /// # Returns
+    /// * `Delta_prime` - Adaptor pre-signature
+    fn pre_sign(&self, p: &Scalar, m: &str, T: &ProjectivePoint, k: &Scalar) -> Delta_prime {
         // s' = k⁻1(H(m)+r'_xtP)
         // R' = k·T
         if m.is_empty() {
@@ -94,27 +177,38 @@ impl AS_scheme for ECDSA{
         let R_prime: ProjectivePoint = T * k;
         let R_prime_x = get_x(&R_prime);
 
-
-        let P: ProjectivePoint = ProjectivePoint :: GENERATOR * p;
+        let P: ProjectivePoint = ProjectivePoint::GENERATOR * p;
 
         let e = self.hash_challenge(&R_prime, &P, m);
         let k_inv = invert_scalar(&k);
         let s_prime = k_inv * (e + R_prime_x * p);
-        let mut delta_prime = Delta_prime::default();
-        delta_prime.s_prime = s_prime;
-        delta_prime.R_prime = R_prime;
-        delta_prime.Z = T*p;
-        delta_prime.pi = self.gen_proof(&p, &delta_prime.Z, &P, &T);
-        delta_prime
+        let Z = T * p;
+        Delta_prime {
+            s_prime,
+            R_prime,
+            Z,
+            pi: self.gen_proof(p, &Z, &P, T),
+            ..Default::default()
+        }
     }
+
+    /// Verifies the validity of an adaptor pre-signature.
+    ///
+    /// # Arguments
+    /// * `P` - Public key
+    /// * `m` - Message
+    /// * `T` - Tweak point
+    /// * `delta_prime` - Pre-signature
+    ///
+    /// # Returns
+    /// * `bool` - True if pre-signature is valid
     fn verify_pre_sign(
-            &self,
-            P: &ProjectivePoint,
-            m: &str,
-            T: &ProjectivePoint,
-            delta_prime: &Delta_prime,
-        ) -> bool {
-        
+        &self,
+        P: &ProjectivePoint,
+        m: &str,
+        T: &ProjectivePoint,
+        delta_prime: &Delta_prime,
+    ) -> bool {
         let r_prime_x = get_x(&delta_prime.R_prime);
 
         let s_prime_inv = invert_scalar(&delta_prime.s_prime);
@@ -122,21 +216,36 @@ impl AS_scheme for ECDSA{
         let rhs_point: ProjectivePoint = (*T * e + delta_prime.Z * r_prime_x) * s_prime_inv;
         let rhs = get_x(&rhs_point);
 
-        r_prime_x == rhs  && self.verify_proof(P, &delta_prime.Z, T, &delta_prime.pi)
+        r_prime_x == rhs && self.verify_proof(P, &delta_prime.Z, T, &delta_prime.pi)
     }
+
+    /// Adapts a pre-signature `Delta'` into a valid full signature using secret `t`.
+    ///
+    /// # Arguments
+    /// * `delta_prime` - Pre-signature
+    /// * `t` - Tweak scalar used to adapt the signature
+    ///
+    /// # Returns
+    /// * `Delta` - Final adapted signature (s,R) such that $s = s' t^{-1}$
     fn adapt_signature(&self, delta_prime: &Delta_prime, t: &Scalar) -> Delta {
-        let mut delta = Delta::default();
-        let t_inv: Scalar = invert_scalar(t);
-
-        delta.s = delta_prime.s_prime * (t_inv);
-        delta.R = delta_prime.R_prime;
-        delta
+        let t_inv = invert_scalar(t);
+        let s = delta_prime.s_prime * t_inv;
+        Delta {
+            s,
+            R: delta_prime.R_prime,
+        }
     }
 
+    /// Extracts the secret tweak `t` from a known signature and its pre-signature form.
+    ///
+    /// # Arguments
+    /// * `delta` - Final signature
+    /// * `delta_prime` - Pre-signature
+    ///
+    /// # Returns
+    /// * `Scalar` - Extracted secret tweak `t` such that $t = s' s^{-1}$
     fn extract_witness(&self, delta: &Delta, delta_prime: &Delta_prime) -> Scalar {
         let s_inv: Scalar = invert_scalar(&delta.s);
         delta_prime.s_prime * s_inv
     }
-
-
 }

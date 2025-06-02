@@ -2,18 +2,15 @@
 #![allow(non_camel_case_types)]
 
 pub mod ecdsa;
+pub mod scheme;
 pub mod schnorr;
 pub mod utils;
-pub mod scheme;
 
-
-pub use schnorr::Schnorr;
 pub use ecdsa::ECDSA;
-pub use scheme:: Scheme;
+pub use scheme::Scheme;
+pub use schnorr::Schnorr;
 
-use k256::{
-    ProjectivePoint, Scalar,
-};
+use k256::{ProjectivePoint, Scalar};
 
 // Common structs
 
@@ -69,15 +66,40 @@ impl Default for Pi {
 // Traits
 
 pub trait ZKP {
-    fn compute_challenge(&self, P: &ProjectivePoint, Z: &ProjectivePoint, T: &ProjectivePoint, J: &ProjectivePoint, J_prime: &ProjectivePoint) -> Scalar;
-    fn gen_proof(&self, p: &Scalar, Z: &ProjectivePoint, P: &ProjectivePoint, T: &ProjectivePoint) -> Pi;
-    fn verify_proof(&self, P: &ProjectivePoint, Z: &ProjectivePoint, T: &ProjectivePoint, pi: &Pi) -> bool;
+    fn compute_challenge(
+        &self,
+        P: &ProjectivePoint,
+        Z: &ProjectivePoint,
+        T: &ProjectivePoint,
+        J: &ProjectivePoint,
+        J_prime: &ProjectivePoint,
+    ) -> Scalar;
+    fn gen_proof(
+        &self,
+        p: &Scalar,
+        Z: &ProjectivePoint,
+        P: &ProjectivePoint,
+        T: &ProjectivePoint,
+    ) -> Pi;
+    fn verify_proof(
+        &self,
+        P: &ProjectivePoint,
+        Z: &ProjectivePoint,
+        T: &ProjectivePoint,
+        pi: &Pi,
+    ) -> bool;
 }
 
 pub trait AS_scheme {
     fn hash_challenge(&self, R: &ProjectivePoint, P: &ProjectivePoint, message: &str) -> Scalar;
     fn pre_sign(&self, p: &Scalar, m: &str, T: &ProjectivePoint, r_prime: &Scalar) -> Delta_prime;
-    fn verify_pre_sign(&self, P: &ProjectivePoint, m: &str, T: &ProjectivePoint, delta_prime: &Delta_prime) -> bool;
+    fn verify_pre_sign(
+        &self,
+        P: &ProjectivePoint,
+        m: &str,
+        T: &ProjectivePoint,
+        delta_prime: &Delta_prime,
+    ) -> bool;
     fn adapt_signature(&self, delta_prime: &Delta_prime, t: &Scalar) -> Delta;
     fn extract_witness(&self, delta: &Delta, delta_prime: &Delta_prime) -> Scalar;
 }
