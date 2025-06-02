@@ -55,8 +55,7 @@ git clone https://github.com/johannayara/as_schemes.git
 git clone git@github.com:johannayara/as_schemes.git
 ```
 ---
-
-## Provided features 
+## Provided protocols 
 
 ### 1. Fair data exchange 
 The implementations for the fair data exchange protocol can be found [here](src/bin/fde/main_fde.rs). 
