@@ -2,7 +2,7 @@ use aes_gcm::{
     aead::{Aead, KeyInit},
     Aes256Gcm, Key, Nonce,
 };
-use as_for_fde::{AS_scheme, Delta, Delta_prime, Scheme, Sign_scheme};
+use as_for_fde::{AS_scheme, Sigma, Sigma_prime, Scheme, Sign_scheme};
 use hex;
 use k256::{elliptic_curve::ff::Field, ProjectivePoint, Scalar};
 use rand_core::OsRng;
@@ -26,7 +26,7 @@ impl Client {
         Self { sk, pk, scheme }
     }
 
-    /// Generates a pre-signature (`Delta_prime`) for a given ciphertext `ct`.
+    /// Generates a pre-signature (`Sigma_prime`) for a given ciphertext `ct`.
     /// The ciphertext is hex-encoded before signing.
     ///
     /// # Arguments
@@ -34,12 +34,12 @@ impl Client {
     /// * `server_pk` - The server's public key, used in the pre-signing process.
     /// # Returns
     /// The pre-signature and the tweak point `T`.
-    pub fn generate_presig(&self, ct: &[u8], server_pk: &ProjectivePoint) -> Delta_prime {
+    pub fn generate_presig(&self, ct: &[u8], server_pk: &ProjectivePoint) -> Sigma_prime {
         let r_prime = Scalar::random(&mut OsRng);
-        let delta_prime = self
+        let sigma_prime = self
             .scheme
             .pre_sign(&self.sk, &hex::encode(ct), server_pk, &r_prime);
-        delta_prime
+        sigma_prime
     }
 
     /// Verifies the correctness of both the server's and client's signatures on the same ciphertext.
@@ -47,8 +47,8 @@ impl Client {
     /// # Arguments
     /// * `server_pk` - Server's public key.
     /// * `ct` - Ciphertext being verified.
-    /// * `delta_s` - Signature from the server.
-    /// * `delta_c` - Signature from the client.
+    /// * `sigma_s` - Signature from the server.
+    /// * `sigma_c` - Signature from the client.
     ///
     /// # Returns
     /// * `true` if both signatures are valid; `false` otherwise.
@@ -56,13 +56,13 @@ impl Client {
         &self,
         server_pk: &ProjectivePoint,
         ct: &[u8],
-        delta_s: &Delta,
-        delta_c: &Delta,
+        sigma_s: &Sigma,
+        sigma_c: &Sigma,
     ) -> bool {
         let is_s_correct = self
             .scheme
-            .verify_sign(delta_s, server_pk, &hex::encode(ct));
-        let is_c_correct = self.scheme.verify_sign(delta_c, &self.pk, &hex::encode(ct));
+            .verify_sign(sigma_s, server_pk, &hex::encode(ct));
+        let is_c_correct = self.scheme.verify_sign(sigma_c, &self.pk, &hex::encode(ct));
         is_c_correct && is_s_correct
     }
 
@@ -70,14 +70,14 @@ impl Client {
     ///
     /// # Arguments
     ///
-    /// * `delta` - The full signature.
-    /// * `delta_prime` - The pre-signature.
+    /// * `sigma` - The full signature.
+    /// * `sigma_prime` - The pre-signature.
     ///
     /// # Returns
     ///
     /// * The extracted `Scalar` witness value `t`.
-    pub fn extract_secret(&self, delta: &Delta, delta_prime: &Delta_prime) -> Scalar {
-        let t = self.scheme.extract_witness(delta, delta_prime);
+    pub fn extract_secret(&self, sigma: &Sigma, sigma_prime: &Sigma_prime) -> Scalar {
+        let t = self.scheme.extract_witness(sigma, sigma_prime);
         t
     }
 

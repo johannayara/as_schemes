@@ -102,7 +102,7 @@ cargo run --bin atomic_swap ecdsa
 Both protocols simulate a sequence of steps representing how they might operate in a real blockchain environment. The output logs each step accordingly.
 
 ### Notes on notation 
-In the code a struct Delta was created to denote a full signature and a struct Delta_prime, represents a pre-signature. A Delta_prime element has optional proof, pi, and point on the curve, Z.
+In the code a struct Sigma was created to denote a full signature and a struct Sigma_prime, represents a pre-signature. A Sigma_prime element has optional proof, pi, and point on the curve, Z.
 ---
 
 ### **Quick Workflow**
@@ -114,3 +114,9 @@ cargo run --bin fde
 ```bash
 cargo run --bin atomic_swap 
 ```
+
+### Further works 
+Here is a non-exhaustive list of ways this project could be expanded : 
+- Integrate the project with existing blockchain technology 
+- Add a Verifiable Encryption Under Commitment Key to FDE protocol
+- Implement a multi-signature scheme, for an arbitrary number of participants

@@ -3,7 +3,7 @@
 
 #[cfg(test)]
 mod tests {
-    use as_for_fde::{AS_scheme, Delta, Delta_prime, Sign_scheme, ECDSA};
+    use as_for_fde::{AS_scheme, Sigma, Sigma_prime, Sign_scheme, ECDSA};
     use k256::{elliptic_curve::ff::Field, ProjectivePoint, Scalar};
     use rand_core::OsRng;
 
@@ -21,8 +21,8 @@ mod tests {
 
         let message: &str = "Testing message for ecdsa"; //our message
                                                          // Sign
-        let delta: Delta = ecdsa.sign(&p, message, &k);
-        assert!(ecdsa.verify_sign(&delta, &P, message));
+        let sigma: Sigma = ecdsa.sign(&p, message, &k);
+        assert!(ecdsa.verify_sign(&sigma, &P, message));
         println!("Signature verified ✅");
     }
     #[test]
@@ -33,10 +33,10 @@ mod tests {
         let k = Scalar::random(&mut OsRng);
         let message = "Message";
 
-        let mut delta = ecdsa.sign(&p, message, &k);
-        delta.s += Scalar::ONE; // tamper
+        let mut sigma = ecdsa.sign(&p, message, &k);
+        sigma.s += Scalar::ONE; // tamper
 
-        assert!(!ecdsa.verify_sign(&delta, &P, message));
+        assert!(!ecdsa.verify_sign(&sigma, &P, message));
     }
     #[test]
     fn signature_fails_when_R_tampered() {
@@ -46,10 +46,10 @@ mod tests {
         let k = Scalar::random(&mut OsRng);
         let message = "Another message";
 
-        let mut delta = ecdsa.sign(&p, message, &k);
-        delta.R = delta.R + ProjectivePoint::GENERATOR; // tamper
+        let mut sigma = ecdsa.sign(&p, message, &k);
+        sigma.R = sigma.R + ProjectivePoint::GENERATOR; // tamper
 
-        assert!(!ecdsa.verify_sign(&delta, &P, message));
+        assert!(!ecdsa.verify_sign(&sigma, &P, message));
     }
 
     #[test]
@@ -61,8 +61,8 @@ mod tests {
         let message = "Original";
         let fake_message = "Tampered";
 
-        let delta = ecdsa.sign(&p, message, &k);
-        assert!(!ecdsa.verify_sign(&delta, &P, fake_message));
+        let sigma = ecdsa.sign(&p, message, &k);
+        assert!(!ecdsa.verify_sign(&sigma, &P, fake_message));
     }
     #[test]
     fn proof_verification_fails_if_tampered() {
@@ -74,10 +74,10 @@ mod tests {
         let k = Scalar::random(&mut OsRng);
         let message = "ZK test";
 
-        let mut delta_prime = ecdsa.pre_sign(&p, message, &T, &k);
-        delta_prime.pi.e += Scalar::ONE; // tamper the proof
+        let mut sigma_prime = ecdsa.pre_sign(&p, message, &T, &k);
+        sigma_prime.pi.e += Scalar::ONE; // tamper the proof
 
-        assert!(!ecdsa.verify_pre_sign(&P, message, &T, &delta_prime));
+        assert!(!ecdsa.verify_pre_sign(&P, message, &T, &sigma_prime));
     }
 
     #[test]
@@ -94,8 +94,8 @@ mod tests {
 
         let message: &str = "Test message for ecdsa pre-sign"; //our message
                                                                // Pre-sign
-        let delta_prime: Delta_prime = ecdsa.pre_sign(&p, message, &T, &k);
-        assert!(ecdsa.verify_pre_sign(&P, message, &T, &delta_prime,));
+        let sigma_prime: Sigma_prime = ecdsa.pre_sign(&p, message, &T, &k);
+        assert!(ecdsa.verify_pre_sign(&P, message, &T, &sigma_prime,));
         println!("Pre-signature verified ✅");
     }
 
@@ -109,10 +109,10 @@ mod tests {
         let k = Scalar::random(&mut OsRng);
         let message = "Adapting signature";
 
-        let delta_prime = ecdsa.pre_sign(&p, message, &T, &k);
-        let delta = ecdsa.adapt_signature(&delta_prime, &t);
+        let sigma_prime = ecdsa.pre_sign(&p, message, &T, &k);
+        let sigma = ecdsa.adapt_signature(&sigma_prime, &t);
 
-        assert!(ecdsa.verify_sign(&delta, &P, message));
+        assert!(ecdsa.verify_sign(&sigma, &P, message));
     }
     #[test]
     fn witness_extraction_works() {
@@ -123,9 +123,9 @@ mod tests {
         let k = Scalar::random(&mut OsRng);
         let message = "Extract witness test";
 
-        let delta_prime = ecdsa.pre_sign(&p, message, &T, &k);
-        let delta = ecdsa.adapt_signature(&delta_prime, &t);
-        let extracted = ecdsa.extract_witness(&delta, &delta_prime);
+        let sigma_prime = ecdsa.pre_sign(&p, message, &T, &k);
+        let sigma = ecdsa.adapt_signature(&sigma_prime, &t);
+        let extracted = ecdsa.extract_witness(&sigma, &sigma_prime);
 
         assert_eq!(extracted, t);
     }

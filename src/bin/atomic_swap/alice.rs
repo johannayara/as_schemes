@@ -1,4 +1,4 @@
-use as_for_fde::{AS_scheme, Delta, Delta_prime, Scheme, Sign_scheme};
+use as_for_fde::{AS_scheme, Sigma, Sigma_prime, Scheme, Sign_scheme};
 use k256::{elliptic_curve::ff::Field, ProjectivePoint, Scalar};
 use rand_core::OsRng;
 
@@ -44,7 +44,7 @@ impl Alice {
         }
     }
 
-    /// Generates a pre-signature (`Delta_prime`) for a given transaction `tx`.  
+    /// Generates a pre-signature (`Sigma_prime`) for a given transaction `tx`.  
     /// Returns the pre-signature and the corresponding tweak point `T`.
     ///
     /// # Arguments
@@ -54,27 +54,27 @@ impl Alice {
     /// # Returns
     ///
     /// * A tuple containing:
-    ///   - The pre-signature (`Delta_prime`)
+    ///   - The pre-signature (`Sigma_prime`)
     ///   - The tweak point `T`
-    pub fn generate_presig(&self, tx: &str) -> (Delta_prime, ProjectivePoint) {
+    pub fn generate_presig(&self, tx: &str) -> (Sigma_prime, ProjectivePoint) {
         let r_prime = Scalar::random(&mut OsRng);
-        let delta_prime = self.scheme.pre_sign(&self.sk, tx, &self.T, &r_prime);
-        (delta_prime, self.T)
+        let sigma_prime = self.scheme.pre_sign(&self.sk, tx, &self.T, &r_prime);
+        (sigma_prime, self.T)
     }
 
     /// Verifies a pre-signature against a provided public key and transaction.
     ///
     /// # Arguments
     ///
-    /// * `delta_prime` - The pre-signature to verify.
+    /// * `sigma_prime` - The pre-signature to verify.
     /// * `pk` - The public key claimed to have generated the pre-signature.
     /// * `tx` - The transaction or message being verified.
     ///
     /// # Returns
     ///
     /// * `true` if the pre-signature is valid; `false` otherwise.
-    pub fn verify_presig(&self, delta_prime: &Delta_prime, pk: &ProjectivePoint, tx: &str) -> bool {
-        self.scheme.verify_pre_sign(pk, tx, &self.T, delta_prime)
+    pub fn verify_presig(&self, sigma_prime: &Sigma_prime, pk: &ProjectivePoint, tx: &str) -> bool {
+        self.scheme.verify_pre_sign(pk, tx, &self.T, sigma_prime)
     }
 
     /// Generates Alice's full signature for a transaction, and adapts a pre-signature from Bob
@@ -83,18 +83,18 @@ impl Alice {
     /// # Arguments
     ///
     /// * `tx` - The transaction or message to sign.
-    /// * `delta_prime_b` - Bob’s pre-signature to be adapted.
+    /// * `sigma_prime_b` - Bob’s pre-signature to be adapted.
     ///
     /// # Returns
     ///
     /// * A tuple containing:
-    ///   - Alice’s full signature (`Delta`)
-    ///   - The adapted full signature for Bob (`Delta`)
-    pub fn generate_sig_and_adapt(&self, tx: &str, delta_prime_b: &Delta_prime) -> (Delta, Delta) {
+    ///   - Alice’s full signature (`Sigma`)
+    ///   - The adapted full signature for Bob (`Sigma`)
+    pub fn generate_sig_and_adapt(&self, tx: &str, sigma_prime_b: &Sigma_prime) -> (Sigma, Sigma) {
         let r_a = Scalar::random(&mut OsRng);
-        let delta_a = self.scheme.sign(&self.sk, tx, &r_a);
-        let delta_b = self.scheme.adapt_signature(delta_prime_b, &self.t);
+        let sigma_a = self.scheme.sign(&self.sk, tx, &r_a);
+        let sigma_b = self.scheme.adapt_signature(sigma_prime_b, &self.t);
 
-        (delta_a, delta_b)
+        (sigma_a, sigma_b)
     }
 }

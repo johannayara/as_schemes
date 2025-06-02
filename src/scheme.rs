@@ -1,4 +1,4 @@
-use crate::{AS_scheme, Delta, Delta_prime, Schnorr, Sign_scheme, ECDSA};
+use crate::{AS_scheme, Sigma, Sigma_prime, Schnorr, Sign_scheme, ECDSA};
 use k256::{ProjectivePoint, Scalar};
 
 #[derive(Clone)]
@@ -8,23 +8,23 @@ pub enum Scheme {
 }
 
 impl Sign_scheme for Scheme {
-    fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Delta {
+    fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Sigma {
         match self {
             Scheme::Schnorr(s) => s.sign(p, m, k),
             Scheme::ECDSA(e) => e.sign(p, m, k),
         }
     }
 
-    fn verify_sign(&self, delta: &Delta, P: &ProjectivePoint, m: &str) -> bool {
+    fn verify_sign(&self, sigma: &Sigma, P: &ProjectivePoint, m: &str) -> bool {
         match self {
-            Scheme::Schnorr(s) => s.verify_sign(delta, P, m),
-            Scheme::ECDSA(e) => e.verify_sign(delta, P, m),
+            Scheme::Schnorr(s) => s.verify_sign(sigma, P, m),
+            Scheme::ECDSA(e) => e.verify_sign(sigma, P, m),
         }
     }
 }
 
 impl AS_scheme for Scheme {
-    fn pre_sign(&self, p: &Scalar, m: &str, T: &ProjectivePoint, k: &Scalar) -> Delta_prime {
+    fn pre_sign(&self, p: &Scalar, m: &str, T: &ProjectivePoint, k: &Scalar) -> Sigma_prime {
         match self {
             Scheme::Schnorr(s) => s.pre_sign(p, m, T, k),
             Scheme::ECDSA(e) => e.pre_sign(p, m, T, k),
@@ -36,25 +36,25 @@ impl AS_scheme for Scheme {
         P: &ProjectivePoint,
         m: &str,
         T: &ProjectivePoint,
-        delta_prime: &Delta_prime,
+        sigma_prime: &Sigma_prime,
     ) -> bool {
         match self {
-            Scheme::Schnorr(s) => s.verify_pre_sign(P, m, T, delta_prime),
-            Scheme::ECDSA(e) => e.verify_pre_sign(P, m, T, delta_prime),
+            Scheme::Schnorr(s) => s.verify_pre_sign(P, m, T, sigma_prime),
+            Scheme::ECDSA(e) => e.verify_pre_sign(P, m, T, sigma_prime),
         }
     }
 
-    fn adapt_signature(&self, delta_prime: &Delta_prime, t: &Scalar) -> Delta {
+    fn adapt_signature(&self, sigma_prime: &Sigma_prime, t: &Scalar) -> Sigma {
         match self {
-            Scheme::Schnorr(s) => s.adapt_signature(delta_prime, t),
-            Scheme::ECDSA(e) => e.adapt_signature(delta_prime, t),
+            Scheme::Schnorr(s) => s.adapt_signature(sigma_prime, t),
+            Scheme::ECDSA(e) => e.adapt_signature(sigma_prime, t),
         }
     }
 
-    fn extract_witness(&self, delta: &Delta, delta_prime: &Delta_prime) -> Scalar {
+    fn extract_witness(&self, sigma: &Sigma, sigma_prime: &Sigma_prime) -> Scalar {
         match self {
-            Scheme::Schnorr(s) => s.extract_witness(delta, delta_prime),
-            Scheme::ECDSA(e) => e.extract_witness(delta, delta_prime),
+            Scheme::Schnorr(s) => s.extract_witness(sigma, sigma_prime),
+            Scheme::ECDSA(e) => e.extract_witness(sigma, sigma_prime),
         }
     }
 

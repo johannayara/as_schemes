@@ -4,7 +4,7 @@ use k256::{
 };
 use sha2::{Digest, Sha256};
 
-use crate::{AS_scheme, Delta, Delta_prime, Sign_scheme};
+use crate::{AS_scheme, Sigma, Sigma_prime, Sign_scheme};
 
 /// `Schnorr` implements the Schnorr digital signature scheme and its adaptor variant.
 #[derive(Clone)]
@@ -19,8 +19,8 @@ impl Sign_scheme for Schnorr {
     /// * `k` - Random nonce
     ///
     /// # Returns
-    /// * `Delta` - Standard Schnorr signature `(s, R)`
-    fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Delta {
+    /// * `Sigma` - Standard Schnorr signature `(s, R)`
+    fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Sigma {
         if m.is_empty() {
             panic!("Message cannot be empty.");
         }
@@ -28,22 +28,22 @@ impl Sign_scheme for Schnorr {
         let P = ProjectivePoint::GENERATOR * p;
         let e = self.hash_challenge(&R, &P, m);
         let s = k + e * p;
-        Delta { s, R }
+        Sigma { s, R }
     }
 
     /// Verifies a standard Schnorr signature.
     ///
     /// # Arguments
-    /// * `delta` - Signature `(s, R)` to verify
+    /// * `sigma` - Signature `(s, R)` to verify
     /// * `P` - Public key corresponding to the secret key `p`
     /// * `m` - Message that was signed
     ///
     /// # Returns
     /// * `bool` - True if the signature is valid
-    fn verify_sign(&self, delta: &Delta, P: &ProjectivePoint, m: &str) -> bool {
-        let e = self.hash_challenge(&delta.R, P, m); // compute hash
-        let lhs = ProjectivePoint::GENERATOR * delta.s; // multiply pre-signature by curve generator
-        let rhs = delta.R + *P * e; // compute R + H(R|P|m)P
+    fn verify_sign(&self, sigma: &Sigma, P: &ProjectivePoint, m: &str) -> bool {
+        let e = self.hash_challenge(&sigma.R, P, m); // compute hash
+        let lhs = ProjectivePoint::GENERATOR * sigma.s; // multiply pre-signature by curve generator
+        let rhs = sigma.R + *P * e; // compute R + H(R|P|m)P
         lhs == rhs
     }
 }
@@ -79,8 +79,8 @@ impl AS_scheme for Schnorr {
     /// * `r_prime` - Random nonce
     ///
     /// # Returns
-    /// * `Delta_prime` - Adaptor pre-signature
-    fn pre_sign(&self, p: &Scalar, m: &str, T: &ProjectivePoint, r_prime: &Scalar) -> Delta_prime {
+    /// * `Sigma_prime` - Adaptor pre-signature
+    fn pre_sign(&self, p: &Scalar, m: &str, T: &ProjectivePoint, r_prime: &Scalar) -> Sigma_prime {
         if m.is_empty() {
             panic!("Message cannot be empty.");
         }
@@ -88,7 +88,7 @@ impl AS_scheme for Schnorr {
         let P = ProjectivePoint::GENERATOR * p;
         let e = self.hash_challenge(&R_prime, &P, m);
         let s_prime = *r_prime + e * p;
-        Delta_prime {
+        Sigma_prime {
             s_prime,
             R_prime,
             ..Default::default()
@@ -101,7 +101,7 @@ impl AS_scheme for Schnorr {
     /// * `P` - Signer's public key
     /// * `m` - Message
     /// * `T` - Tweak point used in pre-signature
-    /// * `delta_prime` - Adaptor pre-signature `(s', R')`
+    /// * `sigma_prime` - Adaptor pre-signature `(s', R')`
     ///
     /// # Returns
     /// * `bool` - True if pre-signature is valid
@@ -110,39 +110,39 @@ impl AS_scheme for Schnorr {
         P: &ProjectivePoint,
         m: &str,
         T: &ProjectivePoint,
-        delta_prime: &Delta_prime,
+        sigma_prime: &Sigma_prime,
     ) -> bool {
-        let e = self.hash_challenge(&delta_prime.R_prime, &P, m); // compute hash
-        let lhs = ProjectivePoint::GENERATOR * delta_prime.s_prime; // multiply pre-signature by curve generator
-        let rhs = delta_prime.R_prime - T + *P * e; // compute R'-T + H(R'|P|m)P
+        let e = self.hash_challenge(&sigma_prime.R_prime, &P, m); // compute hash
+        let lhs = ProjectivePoint::GENERATOR * sigma_prime.s_prime; // multiply pre-signature by curve generator
+        let rhs = sigma_prime.R_prime - T + *P * e; // compute R'-T + H(R'|P|m)P
         lhs == rhs
     }
 
     /// Adapts a pre-signature into a valid signature using secret witness `t`.
     ///
     /// # Arguments
-    /// * `delta_prime` - Pre-signature `(s', R')`
+    /// * `sigma_prime` - Pre-signature `(s', R')`
     /// * `t` - Secret tweak scalar
     ///
     /// # Returns
-    /// * `Delta` - Final adapted signature `(s, R)` such that $s = s' + t$
-    fn adapt_signature(&self, delta_prime: &Delta_prime, t: &Scalar) -> Delta {
-        let s = delta_prime.s_prime + (*t);
-        Delta {
+    /// * `Sigma` - Final adapted signature `(s, R)` such that $s = s' + t$
+    fn adapt_signature(&self, sigma_prime: &Sigma_prime, t: &Scalar) -> Sigma {
+        let s = sigma_prime.s_prime + (*t);
+        Sigma {
             s,
-            R: delta_prime.R_prime,
+            R: sigma_prime.R_prime,
         }
     }
 
     /// Extracts the witness `t` used to adapt the pre-signature into the full signature.
     ///
     /// # Arguments
-    /// * `delta` - Final signature `(s, R)`
-    /// * `delta_prime` - Pre-signature `(s', R')`
+    /// * `sigma` - Final signature `(s, R)`
+    /// * `sigma_prime` - Pre-signature `(s', R')`
     ///
     /// # Returns
     /// * `Scalar` - Extracted secret tweak `t` such that $t = s - s'$
-    fn extract_witness(&self, delta: &Delta, delta_prime: &Delta_prime) -> Scalar {
-        delta.s - delta_prime.s_prime
+    fn extract_witness(&self, sigma: &Sigma, sigma_prime: &Sigma_prime) -> Scalar {
+        sigma.s - sigma_prime.s_prime
     }
 }

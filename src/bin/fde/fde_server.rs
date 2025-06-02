@@ -7,7 +7,7 @@ use k256::{elliptic_curve::ff::Field, ProjectivePoint, Scalar};
 
 use rand_core::OsRng;
 
-use as_for_fde::{AS_scheme, Delta, Delta_prime, Scheme, Sign_scheme};
+use as_for_fde::{AS_scheme, Sigma, Sigma_prime, Scheme, Sign_scheme};
 /// `Server` represents a data provider in fair data exchange (FDE) protocol.  
 /// It holds two secret keys:
 /// - One for encrypting data (`sk`)
@@ -82,7 +82,7 @@ impl Server {
     ///
     /// # Arguments
     ///
-    /// * `delta_prime` - The client’s pre-signature.
+    /// * `sigma_prime` - The client’s pre-signature.
     /// * `pk_c` - The client’s public key.
     /// * `ct` - The encrypted ciphertext (used as the message).
     ///
@@ -91,12 +91,12 @@ impl Server {
     /// * `true` if the pre-signature is valid; `false` otherwise.
     pub fn verify_presig(
         &self,
-        delta_prime: &Delta_prime,
+        sigma_prime: &Sigma_prime,
         pk_c: &ProjectivePoint,
         ct: &[u8],
     ) -> bool {
         self.scheme
-            .verify_pre_sign(pk_c, &hex::encode(ct), &self.pk, delta_prime)
+            .verify_pre_sign(pk_c, &hex::encode(ct), &self.pk, sigma_prime)
     }
 
     /// Generates a full signature using the signing key `sk_s`, and adapts a client’s pre-signature  
@@ -105,18 +105,18 @@ impl Server {
     /// # Arguments
     ///
     /// * `ct` - The ciphertext to sign (used as the message).
-    /// * `delta_prime` - The client’s pre-signature to be adapted.
+    /// * `sigma_prime` - The client’s pre-signature to be adapted.
     ///
     /// # Returns
     ///
     /// * A tuple containing:
-    ///   - The server’s full signature (`Delta`).
-    ///   - The adapted signature derived from the client’s pre-signature (`Delta`).
-    pub fn generate_sig_and_adapt(&self, ct: &[u8], delta_prime: &Delta_prime) -> (Delta, Delta) {
+    ///   - The server’s full signature (`Sigma`).
+    ///   - The adapted signature derived from the client’s pre-signature (`Sigma`).
+    pub fn generate_sig_and_adapt(&self, ct: &[u8], sigma_prime: &Sigma_prime) -> (Sigma, Sigma) {
         let r_s = Scalar::random(&mut OsRng);
-        let delta_s = self.scheme.sign(&self.sk_s, &hex::encode(ct), &r_s);
-        let delta_c = self.scheme.adapt_signature(delta_prime, &self.sk);
+        let sigma_s = self.scheme.sign(&self.sk_s, &hex::encode(ct), &r_s);
+        let sigma_c = self.scheme.adapt_signature(sigma_prime, &self.sk);
 
-        (delta_s, delta_c)
+        (sigma_s, sigma_c)
     }
 }

@@ -7,7 +7,7 @@ use sha2::{Digest, Sha256};
 use rand_core::OsRng;
 
 use crate::utils::{get_x, invert_scalar};
-use crate::{AS_scheme, Delta, Delta_prime, Pi, Sign_scheme, ZKP};
+use crate::{AS_scheme, Sigma, Sigma_prime, Pi, Sign_scheme, ZKP};
 
 /// `ECDSA` implements the Elliptic Curve Digital Signature Algorithm and its adaptor variant,
 /// including its zero-knowledge proof.
@@ -106,8 +106,8 @@ impl Sign_scheme for ECDSA {
     /// * `k` - Random nonce scalar
     ///
     /// # Returns
-    /// * `Delta` - Signature containing `(s, R)`
-    fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Delta {
+    /// * `Sigma` - Signature containing `(s, R)`
+    fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Sigma {
         if m.is_empty() {
             panic!("Message cannot be empty.");
         }
@@ -117,22 +117,22 @@ impl Sign_scheme for ECDSA {
         let e = self.hash_challenge(&R, &P, m);
         let k_inv = invert_scalar(k);
         let s = k_inv * (e + *p * r_x);
-        Delta { s: s, R: R }
+        Sigma { s: s, R: R }
     }
 
     /// Verifies a standard ECDSA signature.
     ///
     /// # Arguments
-    /// * `delta` - Signature to verify
+    /// * `sigma` - Signature to verify
     /// * `P` - Signer's public key
     /// * `m` - Message that was signed
     ///
     /// # Returns
     /// * `bool` - True if valid, false otherwise
-    fn verify_sign(&self, delta: &Delta, P: &ProjectivePoint, m: &str) -> bool {
-        let r_x = get_x(&delta.R);
-        let e: Scalar = self.hash_challenge(&delta.R, P, m);
-        let s_inv = invert_scalar(&delta.s);
+    fn verify_sign(&self, sigma: &Sigma, P: &ProjectivePoint, m: &str) -> bool {
+        let r_x = get_x(&sigma.R);
+        let e: Scalar = self.hash_challenge(&sigma.R, P, m);
+        let s_inv = invert_scalar(&sigma.s);
         let rhs_point: ProjectivePoint = (ProjectivePoint::GENERATOR * e + *P * r_x) * s_inv;
         let rhs = get_x(&rhs_point);
         r_x == rhs
@@ -157,7 +157,7 @@ impl AS_scheme for ECDSA {
         <Scalar as Reduce<U256>>::reduce_bytes(&hash.into())
     }
 
-    /// Produces an adaptor pre-signature `Delta'` with a ZK proof of correctness.
+    /// Produces an adaptor pre-signature `Sigma'` with a ZK proof of correctness.
     ///
     /// # Arguments
     /// * `p` - Secret key
@@ -166,8 +166,8 @@ impl AS_scheme for ECDSA {
     /// * `k` - Random nonce
     ///
     /// # Returns
-    /// * `Delta_prime` - Adaptor pre-signature
-    fn pre_sign(&self, p: &Scalar, m: &str, T: &ProjectivePoint, k: &Scalar) -> Delta_prime {
+    /// * `Sigma_prime` - Adaptor pre-signature
+    fn pre_sign(&self, p: &Scalar, m: &str, T: &ProjectivePoint, k: &Scalar) -> Sigma_prime {
         // s' = k⁻1(H(m)+r'_xtP)
         // R' = k·T
         if m.is_empty() {
@@ -183,7 +183,7 @@ impl AS_scheme for ECDSA {
         let k_inv = invert_scalar(&k);
         let s_prime = k_inv * (e + R_prime_x * p);
         let Z = T * p;
-        Delta_prime {
+        Sigma_prime {
             s_prime,
             R_prime,
             Z,
@@ -198,7 +198,7 @@ impl AS_scheme for ECDSA {
     /// * `P` - Public key
     /// * `m` - Message
     /// * `T` - Tweak point
-    /// * `delta_prime` - Pre-signature
+    /// * `sigma_prime` - Pre-signature
     ///
     /// # Returns
     /// * `bool` - True if pre-signature is valid
@@ -207,45 +207,45 @@ impl AS_scheme for ECDSA {
         P: &ProjectivePoint,
         m: &str,
         T: &ProjectivePoint,
-        delta_prime: &Delta_prime,
+        sigma_prime: &Sigma_prime,
     ) -> bool {
-        let r_prime_x = get_x(&delta_prime.R_prime);
+        let r_prime_x = get_x(&sigma_prime.R_prime);
 
-        let s_prime_inv = invert_scalar(&delta_prime.s_prime);
-        let e: Scalar = self.hash_challenge(&delta_prime.R_prime, &P, m);
-        let rhs_point: ProjectivePoint = (*T * e + delta_prime.Z * r_prime_x) * s_prime_inv;
+        let s_prime_inv = invert_scalar(&sigma_prime.s_prime);
+        let e: Scalar = self.hash_challenge(&sigma_prime.R_prime, &P, m);
+        let rhs_point: ProjectivePoint = (*T * e + sigma_prime.Z * r_prime_x) * s_prime_inv;
         let rhs = get_x(&rhs_point);
 
-        r_prime_x == rhs && self.verify_proof(P, &delta_prime.Z, T, &delta_prime.pi)
+        r_prime_x == rhs && self.verify_proof(P, &sigma_prime.Z, T, &sigma_prime.pi)
     }
 
-    /// Adapts a pre-signature `Delta'` into a valid full signature using secret `t`.
+    /// Adapts a pre-signature `Sigma'` into a valid full signature using secret `t`.
     ///
     /// # Arguments
-    /// * `delta_prime` - Pre-signature
+    /// * `sigma_prime` - Pre-signature
     /// * `t` - Tweak scalar used to adapt the signature
     ///
     /// # Returns
-    /// * `Delta` - Final adapted signature (s,R) such that $s = s' t^{-1}$
-    fn adapt_signature(&self, delta_prime: &Delta_prime, t: &Scalar) -> Delta {
+    /// * `Sigma` - Final adapted signature (s,R) such that $s = s' t^{-1}$
+    fn adapt_signature(&self, sigma_prime: &Sigma_prime, t: &Scalar) -> Sigma {
         let t_inv = invert_scalar(t);
-        let s = delta_prime.s_prime * t_inv;
-        Delta {
+        let s = sigma_prime.s_prime * t_inv;
+        Sigma {
             s,
-            R: delta_prime.R_prime,
+            R: sigma_prime.R_prime,
         }
     }
 
     /// Extracts the secret tweak `t` from a known signature and its pre-signature form.
     ///
     /// # Arguments
-    /// * `delta` - Final signature
-    /// * `delta_prime` - Pre-signature
+    /// * `sigma` - Final signature
+    /// * `sigma_prime` - Pre-signature
     ///
     /// # Returns
     /// * `Scalar` - Extracted secret tweak `t` such that $t = s' s^{-1}$
-    fn extract_witness(&self, delta: &Delta, delta_prime: &Delta_prime) -> Scalar {
-        let s_inv: Scalar = invert_scalar(&delta.s);
-        delta_prime.s_prime * s_inv
+    fn extract_witness(&self, sigma: &Sigma, sigma_prime: &Sigma_prime) -> Scalar {
+        let s_inv: Scalar = invert_scalar(&sigma.s);
+        sigma_prime.s_prime * s_inv
     }
 }

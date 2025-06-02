@@ -1,4 +1,4 @@
-use as_for_fde::{AS_scheme, Delta, Delta_prime, Scheme, Sign_scheme};
+use as_for_fde::{AS_scheme, Sigma, Sigma_prime, Scheme, Sign_scheme};
 use k256::{elliptic_curve::ff::Field, ProjectivePoint, Scalar};
 use rand_core::OsRng;
 
@@ -29,7 +29,7 @@ impl Bob {
         Self { sk, pk, scheme }
     }
 
-    /// Generates a pre-signature `Delta'` using Bob's secret key.
+    /// Generates a pre-signature `Sigma'` using Bob's secret key.
     ///
     /// # Arguments
     ///
@@ -38,18 +38,18 @@ impl Bob {
     ///
     /// # Returns
     ///
-    /// * A `Delta_prime` representing the pre-signature.
-    pub fn generate_presig(&self, tx: &str, T: &ProjectivePoint) -> Delta_prime {
+    /// * A `Sigma_prime` representing the pre-signature.
+    pub fn generate_presig(&self, tx: &str, T: &ProjectivePoint) -> Sigma_prime {
         let r_prime = Scalar::random(&mut OsRng);
-        let delta_prime = self.scheme.pre_sign(&self.sk, tx, T, &r_prime);
-        delta_prime
+        let sigma_prime = self.scheme.pre_sign(&self.sk, tx, T, &r_prime);
+        sigma_prime
     }
 
     /// Verifies a given pre-signature against the expected public key and message.
     ///
     /// # Arguments
     ///
-    /// * `delta_prime` - The pre-signature to verify.
+    /// * `sigma_prime` - The pre-signature to verify.
     /// * `pk` - The public key expected to have generated the pre-signature.
     /// * `tx` - The transaction/message the signature is bound to.
     /// * `T` - The tweak point used in the pre-signature.
@@ -59,12 +59,12 @@ impl Bob {
     /// * `true` if the pre-signature is valid; `false` otherwise.
     pub fn verify_presig(
         &self,
-        delta_prime: &Delta_prime,
+        sigma_prime: &Sigma_prime,
         pk: &ProjectivePoint,
         tx: &str,
         T: &ProjectivePoint,
     ) -> bool {
-        self.scheme.verify_pre_sign(pk, tx, T, delta_prime)
+        self.scheme.verify_pre_sign(pk, tx, T, sigma_prime)
     }
 
     /// Verifies two full signatures over the same message.
@@ -73,8 +73,8 @@ impl Bob {
     ///
     /// * `a_pk` - Alice's public key.
     /// * `tx` - The transaction/message being verified.
-    /// * `delta_a` - Alice's full signature.
-    /// * `delta_b` - Bob's own full signature.
+    /// * `sigma_a` - Alice's full signature.
+    /// * `sigma_b` - Bob's own full signature.
     ///
     /// # Returns
     ///
@@ -83,11 +83,11 @@ impl Bob {
         &self,
         a_pk: &ProjectivePoint,
         tx: &str,
-        delta_a: &Delta,
-        delta_b: &Delta,
+        sigma_a: &Sigma,
+        sigma_b: &Sigma,
     ) -> bool {
-        let is_a_correct = self.scheme.verify_sign(delta_a, a_pk, tx);
-        let is_b_correct = self.scheme.verify_sign(delta_b, &self.pk, tx);
+        let is_a_correct = self.scheme.verify_sign(sigma_a, a_pk, tx);
+        let is_b_correct = self.scheme.verify_sign(sigma_b, &self.pk, tx);
         is_a_correct && is_b_correct
     }
 
@@ -95,14 +95,14 @@ impl Bob {
     ///
     /// # Arguments
     ///
-    /// * `delta` - The full signature.
-    /// * `delta_prime` - The pre-signature.
+    /// * `sigma` - The full signature.
+    /// * `sigma_prime` - The pre-signature.
     ///
     /// # Returns
     ///
     /// * The extracted `Scalar` witness value `t`.
-    pub fn extract_secret(&self, delta: &Delta, delta_prime: &Delta_prime) -> Scalar {
-        let t = self.scheme.extract_witness(delta, delta_prime);
+    pub fn extract_secret(&self, sigma: &Sigma, sigma_prime: &Sigma_prime) -> Scalar {
+        let t = self.scheme.extract_witness(sigma, sigma_prime);
         t
     }
 
@@ -111,24 +111,24 @@ impl Bob {
     /// # Arguments
     ///
     /// * `tx` - The transaction/message to sign.
-    /// * `delta_prime_a` - Alice's pre-signature to adapt.
+    /// * `sigma_prime_a` - Alice's pre-signature to adapt.
     /// * `t` - The shared secret used to adapt Alice’s pre-signature.
     ///
     /// # Returns
     ///
     /// * A tuple containing:
-    ///     - Alice’s adapted full signature (`Delta`)
-    ///     - Bob’s newly generated full signature (`Delta`)
+    ///     - Alice’s adapted full signature (`Sigma`)
+    ///     - Bob’s newly generated full signature (`Sigma`)
     pub fn generate_sig_and_adapt(
         &self,
         tx: &str,
-        delta_prime_a: &Delta_prime,
+        sigma_prime_a: &Sigma_prime,
         t: &Scalar,
-    ) -> (Delta, Delta) {
+    ) -> (Sigma, Sigma) {
         let r_b = Scalar::random(&mut OsRng);
-        let delta_a = self.scheme.adapt_signature(delta_prime_a, t);
-        let delta_b = self.scheme.sign(&self.sk, tx, &r_b);
+        let sigma_a = self.scheme.adapt_signature(sigma_prime_a, t);
+        let sigma_b = self.scheme.sign(&self.sk, tx, &r_b);
 
-        (delta_a, delta_b)
+        (sigma_a, sigma_b)
     }
 }

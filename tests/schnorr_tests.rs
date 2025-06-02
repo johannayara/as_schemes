@@ -3,7 +3,7 @@
 
 #[cfg(test)]
 mod tests {
-    use as_for_fde::{AS_scheme, Delta, Delta_prime, Schnorr, Sign_scheme};
+    use as_for_fde::{AS_scheme, Sigma, Sigma_prime, Schnorr, Sign_scheme};
     use k256::{elliptic_curve::ff::Field, ProjectivePoint, Scalar};
     use rand_core::OsRng;
 
@@ -21,8 +21,8 @@ mod tests {
 
         let message: &str = "Testing message for schnorr"; //our message
                                                            // Sign
-        let delta: Delta = schnorr.sign(&p, message, &k);
-        assert!(schnorr.verify_sign(&delta, &P, message));
+        let sigma: Sigma = schnorr.sign(&p, message, &k);
+        assert!(schnorr.verify_sign(&sigma, &P, message));
         println!("Signature verified ✅");
     }
     #[test]
@@ -33,10 +33,10 @@ mod tests {
         let k = Scalar::random(&mut OsRng);
         let message = "Message";
 
-        let mut delta = schnorr.sign(&p, message, &k);
-        delta.s += Scalar::ONE; // tamper
+        let mut sigma = schnorr.sign(&p, message, &k);
+        sigma.s += Scalar::ONE; // tamper
 
-        assert!(!schnorr.verify_sign(&delta, &P, message));
+        assert!(!schnorr.verify_sign(&sigma, &P, message));
     }
     #[test]
     fn signature_fails_when_R_tampered() {
@@ -46,10 +46,10 @@ mod tests {
         let k = Scalar::random(&mut OsRng);
         let message = "Another message";
 
-        let mut delta = schnorr.sign(&p, message, &k);
-        delta.R = delta.R + ProjectivePoint::GENERATOR; // tamper
+        let mut sigma = schnorr.sign(&p, message, &k);
+        sigma.R = sigma.R + ProjectivePoint::GENERATOR; // tamper
 
-        assert!(!schnorr.verify_sign(&delta, &P, message));
+        assert!(!schnorr.verify_sign(&sigma, &P, message));
     }
 
     #[test]
@@ -61,8 +61,8 @@ mod tests {
         let message = "Original";
         let fake_message = "Tampered";
 
-        let delta = schnorr.sign(&p, message, &k);
-        assert!(!schnorr.verify_sign(&delta, &P, fake_message));
+        let sigma = schnorr.sign(&p, message, &k);
+        assert!(!schnorr.verify_sign(&sigma, &P, fake_message));
     }
 
     #[test]
@@ -79,8 +79,8 @@ mod tests {
 
         let message: &str = "Test message for schnorr pre-sign"; //our message
                                                                  // Pre-sign
-        let delta_prime: Delta_prime = schnorr.pre_sign(&p, message, &T, &k);
-        assert!(schnorr.verify_pre_sign(&P, message, &T, &delta_prime,));
+        let sigma_prime: Sigma_prime = schnorr.pre_sign(&p, message, &T, &k);
+        assert!(schnorr.verify_pre_sign(&P, message, &T, &sigma_prime,));
         println!("Pre-signature verified ✅");
     }
 
@@ -94,10 +94,10 @@ mod tests {
         let k = Scalar::random(&mut OsRng);
         let message = "Adapting signature";
 
-        let delta_prime = schnorr.pre_sign(&p, message, &T, &k);
-        let delta = schnorr.adapt_signature(&delta_prime, &t);
+        let sigma_prime = schnorr.pre_sign(&p, message, &T, &k);
+        let sigma = schnorr.adapt_signature(&sigma_prime, &t);
 
-        assert!(schnorr.verify_sign(&delta, &P, message));
+        assert!(schnorr.verify_sign(&sigma, &P, message));
     }
     #[test]
     fn witness_extraction_works() {
@@ -108,9 +108,9 @@ mod tests {
         let k = Scalar::random(&mut OsRng);
         let message = "Extract witness test";
 
-        let delta_prime = schnorr.pre_sign(&p, message, &T, &k);
-        let delta = schnorr.adapt_signature(&delta_prime, &t);
-        let extracted = schnorr.extract_witness(&delta, &delta_prime);
+        let sigma_prime = schnorr.pre_sign(&p, message, &T, &k);
+        let sigma = schnorr.adapt_signature(&sigma_prime, &t);
+        let extracted = schnorr.extract_witness(&sigma, &sigma_prime);
 
         assert_eq!(extracted, t);
     }

@@ -15,14 +15,14 @@ use k256::{ProjectivePoint, Scalar};
 // Common structs
 
 #[derive(Debug)]
-pub struct Delta_prime {
+pub struct Sigma_prime {
     pub s_prime: Scalar,
     pub R_prime: ProjectivePoint,
     pub Z: ProjectivePoint,
     pub pi: Pi,
 }
 
-impl Default for Delta_prime {
+impl Default for Sigma_prime {
     fn default() -> Self {
         Self {
             s_prime: Scalar::ZERO,
@@ -34,12 +34,12 @@ impl Default for Delta_prime {
 }
 
 #[derive(Debug)]
-pub struct Delta {
+pub struct Sigma {
     pub s: Scalar,
     pub R: ProjectivePoint,
 }
 
-impl Default for Delta {
+impl Default for Sigma {
     fn default() -> Self {
         Self {
             s: Scalar::ZERO,
@@ -92,19 +92,19 @@ pub trait ZKP {
 
 pub trait AS_scheme {
     fn hash_challenge(&self, R: &ProjectivePoint, P: &ProjectivePoint, message: &str) -> Scalar;
-    fn pre_sign(&self, p: &Scalar, m: &str, T: &ProjectivePoint, r_prime: &Scalar) -> Delta_prime;
+    fn pre_sign(&self, p: &Scalar, m: &str, T: &ProjectivePoint, r_prime: &Scalar) -> Sigma_prime;
     fn verify_pre_sign(
         &self,
         P: &ProjectivePoint,
         m: &str,
         T: &ProjectivePoint,
-        delta_prime: &Delta_prime,
+        sigma_prime: &Sigma_prime,
     ) -> bool;
-    fn adapt_signature(&self, delta_prime: &Delta_prime, t: &Scalar) -> Delta;
-    fn extract_witness(&self, delta: &Delta, delta_prime: &Delta_prime) -> Scalar;
+    fn adapt_signature(&self, sigma_prime: &Sigma_prime, t: &Scalar) -> Sigma;
+    fn extract_witness(&self, sigma: &Sigma, sigma_prime: &Sigma_prime) -> Scalar;
 }
 
 pub trait Sign_scheme {
-    fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Delta;
-    fn verify_sign(&self, delta: &Delta, P: &ProjectivePoint, m: &str) -> bool;
+    fn sign(&self, p: &Scalar, m: &str, k: &Scalar) -> Sigma;
+    fn verify_sign(&self, sigma: &Sigma, P: &ProjectivePoint, m: &str) -> bool;
 }
