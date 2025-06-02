@@ -114,6 +114,11 @@ cargo run --bin fde
 ```bash
 cargo run --bin atomic_swap 
 ```
+
+#### Running tests:
+```bash
+cargo test
+```
 ---
 
 ### Further works 
