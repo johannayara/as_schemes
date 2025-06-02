@@ -7,7 +7,7 @@ These protocols are simplified and schematic—they aim to demonstrate the core 
 
 Rust is used as the programming language for all components.
 
-### **Note on Fair Data Exchange protocol**
+### Note on Fair Data Exchange protocol
 This protocol is implemented without cryptographic proofs of correct encryption (e.g., zero-knowledge proofs or verifiable encryption), as that falls outside the intended scope of this project.
 
 ## Project structure
@@ -67,11 +67,11 @@ This example illustrates a fair data exchange mechanism using adaptor signatures
 - Allows client to get the data and server to be able to sell their data
 - Can be run using either Schnorr or ECDSA
 #### Example Usage
-** (Default) Schnorr**:
+(Default) Schnorr:
 ```bash
 cargo run --bin fde
 ```
-** ECDSA **:
+ECDSA:
 ```bash
 cargo run --bin fde ecdsa 
 ```
@@ -86,11 +86,11 @@ The implementation for the atomic swap protocol can be found [here](src/bin/atom
 - Can be run using either Schnorr or ECDSA
 
 #### Example Usage
- (Default) Schnorr:
+(Default) Schnorr:
 ```bash
 cargo run --bin atomic_swap 
 ```
-ECDSA :
+ECDSA:
 ```bash
 cargo run --bin atomic_swap ecdsa 
 ```
@@ -114,9 +114,10 @@ cargo run --bin fde
 ```bash
 cargo run --bin atomic_swap 
 ```
+---
 
 ### Further works 
-Here is a non-exhaustive list of ways this project could be expanded : 
+Here is a non-exhaustive list of ways this project could be expanded: 
 - Integrate the project with existing blockchain technology 
 - Add a Verifiable Encryption Under Commitment Key to FDE protocol
 - Implement a multi-signature scheme, for an arbitrary number of participants
