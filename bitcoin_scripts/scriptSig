@@ -1,0 +1,9 @@
+/*
+## Unlocking script
+# This is an example of a unlocking script for two public/private key pairs
+# It provides the data required to satisfy the conditions set by the scriptPubKey. 
+**/
+OP_0 
+<signature Alice> 
+<signature Bob> 
+OP_0   // Ensure we are in OP_ELSE path, that this the multi-signature locking script

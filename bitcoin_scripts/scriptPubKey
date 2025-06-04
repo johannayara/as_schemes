@@ -1,0 +1,23 @@
+/*
+## Locking Script 
+# This is an example of a small P2MS locking script that allows either:
+# (1) Alice to spend the funds alone after a timelock (e.g., 1 month), OR
+# (2) Both Alice and Bob to jointly spend the funds at any time.
+# This script will be serialized and be part of the TXID for this transaction
+# Outputs : True/False when recieving values from a scriptSig
+**/
+OP_IF
+    // Branch 1: Alice can spend after a timeout (e.g., 1 month)
+    <1_month_in_unix_timestamp>        // Push the absolute locktime
+    OP_CHECKLOCKTIMEVERIFY
+    OP_DROP                            // Remove the locktime from stack
+    <Alice_pubkey>                     // Push Alice’s public key
+    OP_CHECKSIG                        // Require valid signature from Alice
+OP_ELSE
+    // Branch 2: 2-of-2 multisig: Alice and Bob must both sign
+    OP_2                               // Require 2 signatures
+    <Alice_pubkey>
+    <Bob_pubkey>
+    OP_2                               // Provide 2 public keys
+    OP_CHECKMULTISIG                   // Verify 2-of-2 signatures
+OP_ENDIF

@@ -121,6 +121,12 @@ cargo test
 ```
 ---
 
+## Provided scripts and contracts
+In this repository a scriptPubKey and its corresponding scriptSig are provided. They describe how an user could create a pay to mutli-signature transaction and implement a timeout on it. Note that these scripts would usually be wrapped in either a P2SH or a P2WSH script. 
+
+A smart contract that stores 
+
+
 ### Further works 
 Here is a non-exhaustive list of ways this project could be expanded: 
 - Integrate the project with existing blockchain technology 
