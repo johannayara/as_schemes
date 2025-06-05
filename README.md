@@ -145,7 +145,7 @@ Additionally, a smart contract implementation of a TimeMultisigWallet is provide
 - Runs tests on the contract
 
 #### Example Usage
-The tests as well as the gas cost reporter can be ran using this command
+The tests as well as the gas cost reporter can be ran using this command:
 ```bash
 npx hardhat test
 ```
