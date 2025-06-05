@@ -3,9 +3,11 @@
 
 This project provides implementations of adaptor signature schemes and demonstrates their application through two example protocols: **Atomic Swap** and **Fair Data Exchange**. Both **Schnorr** and **ECDSA** adaptor signature schemes are implemented.
 
-These protocols are simplified and schematic—they aim to demonstrate the core steps and concepts as they might appear in real blockchain-based applications. This is not a production-ready library, but rather an educational or proof-of-concept implementation. Therefore they use a `main` as if it was the communication channel between parties, as well as the blockchain.
+These protocols are simplified and schematic—they aim to demonstrate the core steps and concepts as they might appear in real blockchain-based applications. This is not a production-ready library, but rather an educational or proof-of-concept implementation. For the sake of demonstration, communication between parties and interaction with the blockchain are modeled using a `main` function.
 
-Rust is used as the programming language for all components.
+An implementation of two bitcoin scripts that could be used in the protocols as well as a smart contract is also provided. 
+
+`Rust` is used for the core logic, `Soldity` was used for the smart contract implementation and `Bitcoin Script` was used for the scripts. 
 
 ### Note on Fair Data Exchange protocol
 This protocol is implemented without cryptographic proofs of correct encryption (e.g., zero-knowledge proofs or verifiable encryption), as that falls outside the intended scope of this project.

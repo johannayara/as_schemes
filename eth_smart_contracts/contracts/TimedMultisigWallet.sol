@@ -9,8 +9,7 @@ contract TimedMultisigWallet {
     uint256 public unlockTime; // timeout after which Alice can retrieve her coins
     bool public spent; //prevent multiple withdrawals
 
-
-    /// Initalizes the contract with provided values, 
+    /// Initalizes the contract with provided values,
     /// allows the contract to recieve ETH during deployment
     constructor(address _alice, address _bob, uint256 _unlockTime) payable {
         alice = _alice;
@@ -32,7 +31,10 @@ contract TimedMultisigWallet {
     ) external notSpent {
         require(block.timestamp < unlockTime, "Too late for multisig");
         // Check that caller is either Alice or Bob
-        require(msg.sender == alice || msg.sender == bob, "Not an authorized participant");
+        require(
+            msg.sender == alice || msg.sender == bob,
+            "Not an authorized participant"
+        );
 
         address recoveredAlice = recoverSigner(messageHash, sigAlice);
         address recoveredBob = recoverSigner(messageHash, sigBob);
@@ -40,7 +42,7 @@ contract TimedMultisigWallet {
         // Ensure that the recovered addresses match the stored ones
         require(
             (recoveredAlice == alice && recoveredBob == bob) ||
-            (recoveredAlice == bob && recoveredBob == alice),
+                (recoveredAlice == bob && recoveredBob == alice),
             "Invalid signatures"
         );
 
@@ -58,11 +60,9 @@ contract TimedMultisigWallet {
     }
 
     /// signature methods.
-    function splitSignature(bytes memory sig)
-        internal
-        pure
-        returns (uint8 v, bytes32 r, bytes32 s)
-    {
+    function splitSignature(
+        bytes memory sig
+    ) internal pure returns (uint8 v, bytes32 r, bytes32 s) {
         require(sig.length == 65);
 
         assembly {
@@ -77,10 +77,12 @@ contract TimedMultisigWallet {
         return (v, r, s);
     }
 
-    function recoverSigner(bytes32 messageHash, bytes memory signature) internal pure returns (address) {
+    function recoverSigner(
+        bytes32 messageHash,
+        bytes memory signature
+    ) internal pure returns (address) {
         require(signature.length == 65, "Invalid sig length");
 
-        
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
 
         // Add Ethereum Signed Message prefix
@@ -90,9 +92,10 @@ contract TimedMultisigWallet {
     }
 
     function prefixed(bytes32 hash) internal pure returns (bytes32) {
-        return keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
-        );
+        return
+            keccak256(
+                abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
+            );
     }
 
     receive() external payable {}
