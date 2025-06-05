@@ -65,6 +65,7 @@ Choose `Create a JavaScript project` in the shown options.
 Install the dependencies:
 ```bash
 npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+npm install --save-dev hardhat-gas-reporter
 ```
 
 

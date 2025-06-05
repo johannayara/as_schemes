@@ -19,7 +19,5 @@ module.exports = {
     token: "ETH",
     tokenPrice: 3000, // hardcoded ETH price
     currencyDisplayPrecision: 6, 
-    includeIntrinsicGas: true,
-    L1:"ethereum",
   },
 };
