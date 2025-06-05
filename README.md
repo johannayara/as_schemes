@@ -55,6 +55,7 @@ This protocol is implemented without cryptographic proofs of correct encryption 
 Ensure that [Rust](https://www.rust-lang.org/tools/install) is installed.
 You'll also need [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 
+Please navigate to the smart contract directory before running these commands, so the hardhat root is correctly located.
 Install `hardhat` with the following commands:
 ```bash
 npm install --save-dev hardhat
