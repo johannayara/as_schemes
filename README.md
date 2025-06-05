@@ -71,19 +71,14 @@ Ensure that [Rust](https://www.rust-lang.org/tools/install) is installed.
 You'll also need [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 
 Please navigate to the smart contract directory,`eth_smart_contracts` before running these commands, so the hardhat root is correctly located.
-Install `hardhat` with the following commands:
+Install `hardhat` dependencies with the following commands:
 ```bash
-npm install --save-dev hardhat
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+npm install --save-dev hardhat-gas-reporter
 npx hardhat
 ```
 If the option appears choose `Create a JavaScript project` in the shown options. 
 If you see the help page for hardhat the installation was successful. 
-
-Install the dependencies:
-```bash
-npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
-npm install --save-dev hardhat-gas-reporter
-```
 
 ## Provided protocols 
 
