@@ -15,9 +15,9 @@ module.exports = {
   gasReporter: {
     enabled: true,
     currency: "USD",
-    gasPrice: 7,
+    gasPrice: 7, // hardcoded gas price in gwei
     token: "ETH",
-    tokenPrice: 3000, // optional, hardcoded ETH price
+    tokenPrice: 3000, // hardcoded ETH price
     currencyDisplayPrecision: 6, 
     includeIntrinsicGas: true,
     L1:"ethereum",

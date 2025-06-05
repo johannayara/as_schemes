@@ -13,25 +13,36 @@ This protocol is implemented without cryptographic proofs of correct encryption 
 ## Project structure
 ```
 .
+├── bitcoin_scripts
+│   ├── scriptPubKey
+│   └── scriptSig
 ├── Cargo.lock
 ├── Cargo.toml
+├── eth_smart_contracts
+│   ├── contracts
+│   │   └── TimedMultisigWallet.sol
+│   ├── hardhat.config.js
+│   ├── README.md
+│   └── test
+│       └── TimedMultisigWallet.js
+├── package.json
+├── package-lock.json
 ├── README.md
 ├── src
-│   ├── bin
-│   │   ├── atomic_swap
-│   │   │   ├── alice.rs
-│   │   │   ├── bob.rs
-│   │   │   └── main_as.rs
-│   │   └── fde
-│   │       ├── fde_client.rs
-│   │       ├── fde_server.rs
-│   │       └── main_fde.rs
-│   ├── crypto_impl.rs
-│   ├── ecdsa.rs
-│   ├── lib.rs
-│   ├── main.rs
-│   ├── schnorr.rs
-│   └── utils.rs
+│   ├── bin
+│   │   ├── atomic_swap
+│   │   │   ├── alice.rs
+│   │   │   ├── bob.rs
+│   │   │   └── main_as.rs
+│   │   └── fde
+│   │       ├── fde_client.rs
+│   │       ├── fde_server.rs
+│   │       └── main_fde.rs
+│   ├── ecdsa.rs
+│   ├── lib.rs
+│   ├── scheme.rs
+│   ├── schnorr.rs
+│   └── utils.rs
 └── tests
     ├── ecdsa_tests.rs
     └── schnorr_tests.rs
@@ -42,6 +53,19 @@ This protocol is implemented without cryptographic proofs of correct encryption 
 
 ### Prerequisites
 Ensure that [Rust](https://www.rust-lang.org/tools/install) is installed.
+You'll also need [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+
+Install `hardhat` with the following commands:
+```bash
+npm install --save-dev hardhat
+npx hardhat
+```
+Choose `Create a JavaScript project` in the shown options.
+Install the dependencies:
+```bash
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+```
+
 
 ### Clone Repository
 
@@ -122,9 +146,16 @@ cargo test
 ---
 
 ## Provided scripts and contracts
+
 In this repository a scriptPubKey and its corresponding scriptSig are provided. They describe how an user could create a pay to mutli-signature transaction and implement a timeout on it. Note that these scripts would usually be wrapped in either a P2SH or a P2WSH script. 
 
-A smart contract that stores 
+Additionally, a smart contract implementation of a TimeMultisigWallet is provided [here](eth_smart_contracts/). This contract can be tested using Hardhat. Make sure you've completed the setup steps above before running tests.
+
+#### Example Usage
+The tests as well as the gas cost reporter can be ran using this command
+```bash
+npx hardhat test
+```
 
 
 ### Further works 
