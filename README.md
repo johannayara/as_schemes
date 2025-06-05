@@ -98,11 +98,11 @@ This example illustrates a fair data exchange mechanism using adaptor signatures
 #### Example Usage
 (Default) Schnorr:
 ```bash
-cargo run --bin fde
+cargo run --bin main_fde
 ```
 ECDSA:
 ```bash
-cargo run --bin fde ecdsa 
+cargo run --bin main_fde ecdsa 
 ```
 ---
 
@@ -117,11 +117,11 @@ The implementation for the atomic swap protocol can be found [here](src/bin/atom
 #### Example Usage
 (Default) Schnorr:
 ```bash
-cargo run --bin atomic_swap 
+cargo run --bin main_as 
 ```
 ECDSA:
 ```bash
-cargo run --bin atomic_swap ecdsa 
+cargo run --bin main_as ecdsa 
 ```
 
 ---
