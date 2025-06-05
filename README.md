@@ -53,24 +53,6 @@ This protocol is implemented without cryptographic proofs of correct encryption 
 
 ## Setup
 
-### Prerequisites
-Ensure that [Rust](https://www.rust-lang.org/tools/install) is installed.
-You'll also need [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
-
-Please navigate to the smart contract directory before running these commands, so the hardhat root is correctly located.
-Install `hardhat` with the following commands:
-```bash
-npm install --save-dev hardhat
-npx hardhat
-```
-Choose `Create a JavaScript project` in the shown options.
-Install the dependencies:
-```bash
-npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
-npm install --save-dev hardhat-gas-reporter
-```
-
-
 ### Clone Repository
 
 #### Via HTTPS:
@@ -83,6 +65,24 @@ git clone https://github.com/johannayara/as_schemes.git
 git clone git@github.com:johannayara/as_schemes.git
 ```
 ---
+
+### Prerequisites
+Ensure that [Rust](https://www.rust-lang.org/tools/install) is installed.
+You'll also need [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+
+Please navigate to the smart contract directory,`eth_smart_contracts` before running these commands, so the hardhat root is correctly located.
+Install `hardhat` with the following commands:
+```bash
+npm install --save-dev hardhat
+npx hardhat
+```
+Choose `Create a JavaScript project` in the shown options.
+
+Install the dependencies:
+```bash
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+npm install --save-dev hardhat-gas-reporter
+```
 
 ## Provided protocols 
 
@@ -155,11 +155,18 @@ In this repository a scriptPubKey and its corresponding scriptSig are provided. 
 
 Additionally, a smart contract implementation of a TimeMultisigWallet is provided [here](eth_smart_contracts/). This contract can be tested using Hardhat. Make sure you've completed the setup steps above before running tests.
 
+#### Key Features
+- Generates a smart contract with a timeout for a mutli-signature wallet
+- Computes expected gas cost for this contract
+- Runs tests on the contract
+
 #### Example Usage
 The tests as well as the gas cost reporter can be ran using this command
 ```bash
 npx hardhat test
 ```
+### Output
+Shows the tests status as well as a table with estimated gas costs. 
 
 
 ### Further works 
