@@ -156,11 +156,11 @@ Shows the tests status as well as a table with estimated gas costs.
 ### TL;DR Quick Workflow
 #### Fair Data Exchange (Schnorr):
 ```bash
-cargo run --bin fde 
+cargo run --bin main_fde 
 ```
 #### Atomic swap (Schnorr):
 ```bash
-cargo run --bin atomic_swap 
+cargo run --bin main_as 
 ```
 
 #### Running tests for Schnorr and ECDSA AS schemes:
