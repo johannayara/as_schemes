@@ -76,7 +76,8 @@ Install `hardhat` with the following commands:
 npm install --save-dev hardhat
 npx hardhat
 ```
-Choose `Create a JavaScript project` in the shown options.
+If the option appears choose `Create a JavaScript project` in the shown options. 
+If you see the help page for hardhat the installation was successful. 
 
 Install the dependencies:
 ```bash
@@ -132,23 +133,6 @@ Both protocols simulate a sequence of steps representing how they might operate 
 In the code a struct Sigma was created to denote a full signature and a struct Sigma_prime, represents a pre-signature. A Sigma_prime element has optional proof, pi, and point on the curve, Z. These are used in ECDSA adaptor signatures. 
 
 ---
-
-### **Quick Workflow**
-#### Fair Data Exchange (Schnorr):
-```bash
-cargo run --bin fde 
-```
-#### Atomic swap (Schnorr):
-```bash
-cargo run --bin atomic_swap 
-```
-
-#### Running tests:
-```bash
-cargo test
-```
----
-
 ## Provided scripts and contracts
 
 In this repository a scriptPubKey and its corresponding scriptSig are provided. They describe how an user could create a pay to mutli-signature transaction and implement a timeout on it. Note that these scripts would usually be wrapped in either a P2SH or a P2WSH script. 
@@ -168,6 +152,27 @@ npx hardhat test
 ### Output
 Shows the tests status as well as a table with estimated gas costs. 
 
+
+### TL;DR Quick Workflow
+#### Fair Data Exchange (Schnorr):
+```bash
+cargo run --bin fde 
+```
+#### Atomic swap (Schnorr):
+```bash
+cargo run --bin atomic_swap 
+```
+
+#### Running tests for Schnorr and ECDSA AS schemes:
+```bash
+cargo test
+```
+#### Testing smart contract:
+```bash
+npx hardhat test
+```
+
+---
 
 ### Further works 
 Here is a non-exhaustive list of ways this project could be expanded: 
