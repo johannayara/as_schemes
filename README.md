@@ -81,7 +81,7 @@ If the option appears choose `Create a JavaScript project` in the shown options.
 If you see the help page for hardhat the installation was successful. 
 
 #### Troubleshooting
-If when installing hardhat you get an dependency error titled ERESOLVE. This is because some of the dependencies are only compatible with certain versions. Please run the follwing commands and try installing the dependencies again:
+If when installing hardhat you get an dependency error titled ERESOLVE. This is because some of the dependencies are only compatible with certain versions of other dependecies. Please run the follwing commands to uninstall the incompatible versions and try installing the dependencies again:
 ```bash
 npm uninstall --save-dev hardhat @nomicfoundation/hardhat-toolbox
 npm uninstall --save-dev hardhat-gas-reporter
@@ -173,7 +173,6 @@ cargo test
 ```bash
 npx hardhat test
 ```
-
 ---
 
 ### Further works 
