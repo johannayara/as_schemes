@@ -168,7 +168,7 @@ In the code a struct Sigma was created to denote a full signature and a struct S
 
 ### Bitcoin scripts
 
-In this repository a scriptPubKey and its corresponding scriptSig are provided. They describe how an user could create a pay to multi-signature transaction and implement a timeout on it. Note that these scripts would usually be wrapped in either a P2SH or a P2WSH script.
+In this repository a scriptPubKey and its corresponding scriptSig are provided, [here](bitcoin_scripts/). They describe how an user could create a pay to multi-signature transaction and implement a timeout on it. Note that these scripts would usually be wrapped in either a P2SH or a P2WSH script.
 More information on Bitcoin Scripts can be found [here](https://github.com/bitcoin/bips.git).
 
 ### TimedMultiSigWallet smart contract
