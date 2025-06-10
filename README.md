@@ -4,11 +4,11 @@
 
 This project provides implementations of adaptor signature schemes and demonstrates their application through two example protocols: **Atomic Swap** and **Fair Data Exchange**. Both **Schnorr** and **ECDSA** adaptor signature schemes are implemented.
 
-These protocols are simplified and schematic—they aim to demonstrate the core steps and concepts as they might appear in real blockchain-based applications. This is not a production-ready library, but rather an educational or proof-of-concept implementation. For the sake of demonstration, communication between parties and interaction with the blockchain are modeled using a `main` function.
+These protocols are simplified and schematic—they aim to demonstrate the core steps and concepts as they might appear in real blockchain-based applications. This is not a production-ready library, but rather an educational or proof-of-concept implementation. For the sake of demonstration, communication between parties and interaction with the blockchain are modelled using a `main` function.
 
 An implementation of two Bitcoin scripts that could be used in the protocols as well as a smart contract is also provided.
 
-`Rust` is used for the core logic, `Soldity` was used for the smart contract implementation and `Bitcoin Script` was used for the scripts.
+`Rust` is used for the core logic, `Solidity` was used for the smart contract implementation and `Bitcoin Script` was used for the scripts.
 
 ### Note on Fair Data Exchange protocol
 
@@ -174,6 +174,8 @@ More information on Bitcoin Scripts can be found [here](https://github.com/bitco
 ### TimedMultiSigWallet smart contract
 
 Additionally, a smart contract implementation of a TimeMultisigWallet is provided [here](eth_smart_contracts/contracts/TimedMultisigWallet.sol). This contract can be tested using Hardhat. Make sure you've completed the setup steps above before running tests.
+
+The gas report is computed using hardcoded values in [hardhat.config.js](eth_smart_contracts/hardhat.config.js), these values can be modified to the users convenience by editig the file and rerunning the tests.
 
 #### Key Features
 
