@@ -50,6 +50,24 @@ describe("TimedMultisigWallet", function () {
     expect(contractBalanceAfter).to.equal(0);
   });
 
+  it("Should allow Alice to withdraw only once after timeout", async function () {
+  // Fast-forward time past the unlockTime
+  await ethers.provider.send("evm_increaseTime", [3601]);
+  await ethers.provider.send("evm_mine", []);
+
+  // First withdrawal should succeed
+  await expect(walletContract.connect(alice).withdrawAfterTimeout()).to.not.be.reverted;
+
+  // Contract balance should now be zero
+  const balance = await ethers.provider.getBalance(walletContract.target);
+  expect(balance).to.equal(0);
+
+  // Second attempt should fail with "Funds already withdrawn"
+  await expect(
+    walletContract.connect(alice).withdrawAfterTimeout()
+  ).to.be.revertedWith("Funds already withdrawn");
+});
+
   it("Should not allow withdraw after timeout with multisig", async function () {
     const message = solidityPackedKeccak256(["string"], ["Withdraw funds from TimedMultisigWallet"]);
 

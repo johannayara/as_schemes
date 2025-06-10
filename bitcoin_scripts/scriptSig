@@ -3,7 +3,7 @@
 # This is an example of a unlocking script for two public/private key pairs
 # It provides the data required to satisfy the conditions set by the scriptPubKey. 
 **/
-OP_0 
+OP_0 // Need to call OP_0 because of a bug in OP_CHECKMULTISIG
 <signature Alice> 
 <signature Bob> 
 OP_0   // Ensure we are in OP_ELSE path, that this the multi-signature locking script
