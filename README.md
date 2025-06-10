@@ -173,7 +173,7 @@ More information on Bitcoin Scripts can be found [here](https://github.com/bitco
 
 ### TimedMultiSigWallet smart contract
 
-Additionally, a smart contract implementation of a TimeMultisigWallet is provided [here](eth_smart_contracts/). This contract can be tested using Hardhat. Make sure you've completed the setup steps above before running tests.
+Additionally, a smart contract implementation of a TimeMultisigWallet is provided [here](eth_smart_contracts/contracts/TimedMultisigWallet.sol). This contract can be tested using Hardhat. Make sure you've completed the setup steps above before running tests.
 
 #### Key Features
 
